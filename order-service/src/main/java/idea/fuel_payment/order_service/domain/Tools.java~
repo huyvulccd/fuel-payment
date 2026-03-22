@@ -1,0 +1,13 @@
+package idea.fuel_payment.order_service.domain;
+
+import java.util.Optional;
+
+public interface Tools {
+
+	static <T> T getValue(Optional<T> optional, String log) throws IllegalAccessException {
+		if (optional.isPresent()) {
+			return optional.get();
+		}
+		throw new IllegalAccessException(log);
+	}
+}

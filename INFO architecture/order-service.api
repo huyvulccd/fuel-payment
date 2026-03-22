@@ -1,0 +1,33 @@
+### owners
+
+- POST /owners/register
+- GET /owners/{id}
+- PUT /owners/{id}
+
+### vehicles
+
+- GET /vehicles?owner_id={ownerId}
+- GET /vehicles/{licensePlate}
+- POST /vehicles/register
+- PUT /vehicles/{licensePlate}
+- GET /vehicles/models
+
+### fuel-orders
+
+- GET /fuel-orders?owner_id={ownerId}
+- GET /fuel-orders/{orderCode}
+- POST /fuel-orders/join-line 
+"""
+request {
+    licensePlate: string,
+    stationId: Long
+} 
+response {
+    orderCode: string,
+    licensePlate: string,
+    stationId: Long,
+    queuePosition: int,
+    fuelPumpId: Long
+}
+"""
+- PUT /fuel-orders/{orderCode}

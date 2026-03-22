@@ -1,0 +1,57 @@
+
+### transactions
+
+- GET /transactions?owner_id={ownerId}&limit={limit}&offset={offset}
+- GET /transactions/{transactionCode}
+
+### topup-history
+- POST /topup-history/register
+"""
+request {
+    ownerId: Long,
+    amount: double
+}
+response {
+    transactionCode: string,
+    ownerId: Long,
+    amount: double,
+    status: string,
+    balanceBefore: double,
+    balanceAfter: double
+}
+"""
+
+### payment-history
+- POST /payment-history/register
+"""
+request {
+    ownerId: Long,
+    amount: double
+}
+response {
+    transactionCode: string,
+    ownerId: Long,
+    amount: double,
+    status: string,
+    balanceBefore: double,
+    balanceAfter: double
+}
+"""
+
+### transfer-history
+- POST /transfer-history/register
+"""
+request {
+    senderId: Long,
+    receiverId: Long,
+    amount: double
+}
+response {
+    transactionCode: string,
+    ownerId: Long,
+    amount: double,
+    status: string,
+    balanceBefore: double,
+    balanceAfter: double
+}
+"""

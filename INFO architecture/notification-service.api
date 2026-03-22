@@ -1,0 +1,24 @@
+### notifications
+
+- POST /notifications
+"""
+request {
+    licensePlate: string,
+    phone: string,
+    messageType: string,
+    messageContent: string,
+    channel: string
+}
+response {
+    notificationCode: string,
+    licensePlate: string,
+    phone: string,
+    messageType: string,
+    messageContent: string,
+    channel: string,
+    sendStatus: string,
+    sentAt: timestamp
+}
+"""
+
+- GET /notifications?ownerId={ownerId}&limit={limit}&offset={offset}

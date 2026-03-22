@@ -1,0 +1,236 @@
+sequenceDiagram
+    autonumber
+
+    participant Camera as OCR Camera
+    participant Gateway as API Gateway
+    participant Order as ORDER SERVICE
+    participant Orchestrator as ORCHESTRATOR
+    participant Payment as PAYMENT SERVICE
+    participant Gas as GAS SERVICE
+    participant Notification as NOTIFICATION
+    participant Kafka as Apache Kafka
+    participant Redis as Redis Cache
+    participant DB as Databases
+
+    Note over Camera,DB: PHASE 1: Tạo Đơn Hàng
+
+    Camera->>Gateway: POST /api/v1/orders<br/>{licensePlate, stationId, pumpId, fuelType}
+    Gateway->>Order: Forward request
+
+    Order->>Redis: GET vehicle:51F-123.45
+    Redis-->>Order: Cache miss
+
+    Order->>DB: SELECT * FROM vehicle<br/>WHERE license_plate = '51F-123.45'
+    DB-->>Order: Vehicle data (ownerId: 123)
+
+    Order->>Redis: SET vehicle:51F-123.45<br/>TTL 3600s
+
+    Order->>DB: INSERT INTO fuel_order<br/>order_status = 'CREATED'
+    DB-->>Order: order_id, order_code
+
+    Order->>Kafka: Produce: fuel.order.created<br/>{orderCode, licensePlate, ownerId, ...}
+
+    Order-->>Gateway: 201 Created<br/>{orderCode: "ORD20250101000001"}
+    Gateway-->>Camera: Response
+
+    Note over Camera,DB: PHASE 2: SAGA Orchestration
+
+    Kafka-->>Orchestrator: Consume: fuel.order.created
+
+    Orchestrator->>DB: INSERT INTO saga_instances<br/>saga_id='SAGA001', saga_type='FUEL_PURCHASE', total_steps=8
+    Orchestrator->>DB: INSERT INTO saga_step_logs<br/>saga_id='SAGA001', step_order=1, step_status='SUCCESS'
+
+    Orchestrator->>Redis: SET saga:lock:ORD20250101000001<br/>EX 300 NX
+
+    Note over Orchestrator: Step 1: CREATE_ORDER ✓<br/>Step 2: CHECK_BALANCE
+
+    Orchestrator->>Kafka: Produce: fuel.saga.step.command<br/>{step: 2, action: "CHECK_BALANCE"}
+
+    Note over Camera,DB: PHASE 3: Kiểm Tra Số Dư
+
+    Kafka-->>Payment: Consume: fuel.saga.step.command
+
+    Payment->>Redis: GET balance:owner:123
+    Redis-->>Payment: Cache miss
+
+    Payment->>DB: SELECT balance FROM owners<br/>WHERE id = 123
+    DB-->>Payment: balance = 500000
+
+    Payment->>Payment: Check: 500000 >= 50000 ✓
+
+    Payment->>Redis: SET balance:owner:123 500000<br/>TTL 300s
+
+    Payment->>Kafka: Produce: fuel.saga.step.response<br/>{step: 2, status: "SUCCESS"}
+
+    Note over Camera,DB: PHASE 4: Kích Hoạt Trụ Bơm
+
+    Kafka-->>Orchestrator: Consume: fuel.saga.step.response
+
+    Orchestrator->>DB: UPDATE saga_step_logs<br/>step_order=2, step_status='SUCCESS'
+    Orchestrator->>DB: UPDATE saga_instances<br/>current_step = 3
+
+    Note over Orchestrator: Step 3: ACTIVATE_PUMP
+
+    Orchestrator->>Kafka: Produce: fuel.saga.step.command<br/>{step: 3, action: "ACTIVATE_PUMP"}
+
+    Kafka-->>Gas: Consume: fuel.saga.step.command
+
+    Gas->>Redis: HGET pump:status:PUMP001 status
+    Redis-->>Gas: "AVAILABLE"
+
+    Gas->>DB: UPDATE fuel_pumps<br/>SET pump_status = 'IN_USE'<br/>WHERE id = 1
+
+    Gas->>DB: INSERT INTO pump_sessions<br/>session_status = 'STARTED'
+    DB-->>Gas: session_code
+
+    Gas->>Redis: HSET pump:status:PUMP001<br/>status "IN_USE"<br/>current_order "ORD20250101000001"
+
+    Gas->>Kafka: Produce: fuel.saga.step.response<br/>{step: 3, status: "SUCCESS"}
+    Gas->>Kafka: Produce: fuel.pump.activated<br/>{pumpId, sessionCode}
+
+    Note over Camera,DB: PHASE 5: Chờ Bơm Xăng
+
+    Kafka-->>Orchestrator: Consume: fuel.saga.step.response
+
+    Orchestrator->>DB: UPDATE saga_step_logs<br/>step_order=3, step_status='SUCCESS'
+    Orchestrator->>DB: UPDATE saga_instances<br/>current_step = 4
+
+    Note over Orchestrator: Step 4: WAIT_PUMP_COMPLETE
+
+    Note over IoT: Khách hàng bơm xăng...<br/>10.5 lít
+
+    IoT->>Gateway: POST /api/v1/gas/pumps/1/complete<br/>{sessionCode, quantityLiters: 10.5}
+    Gateway->>Gas: Forward request
+
+    Gas->>Redis: HGET fuel:price:RON95 price
+    Redis-->>Gas: 24500
+
+    Gas->>Gas: Calculate: 10.5 * 24500 = 257,250 VNĐ
+
+    Gas->>DB: UPDATE pump_sessions<br/>quantity_liters = 10.5<br/>total_amount = 257250<br/>session_status = 'COMPLETED'
+
+    Gas->>DB: UPDATE fuel_pumps<br/>pump_status = 'AVAILABLE'
+
+    Gas->>Redis: HSET pump:status:PUMP001<br/>status "AVAILABLE"<br/>current_order ""
+
+    Gas->>Kafka: Produce: fuel.pump.completed<br/>{sessionCode, orderCode, quantity, amount}
+
+    Gas-->>Gateway: 200 OK
+    Gateway-->>IoT: Response
+
+    Note over Camera,DB: PHASE 6: Xử Lý Thanh Toán
+
+    Kafka-->>Orchestrator: Consume: fuel.pump.completed
+
+    Orchestrator->>DB: UPDATE saga_step_logs<br/>step_order=4, step_status='SUCCESS'
+    Orchestrator->>DB: UPDATE saga_instances<br/>current_step = 5
+
+    Note over Orchestrator: Step 5: PROCESS_PAYMENT
+
+    Orchestrator->>Kafka: Produce: fuel.saga.step.command<br/>{step: 5, action: "PROCESS_PAYMENT", amount: 257250}
+
+    Kafka-->>Payment: Consume: fuel.saga.step.command
+
+    Payment->>Redis: SET payment:lock:owner:123<br/>ORD20250101000001 EX 30 NX
+    Redis-->>Payment: OK (lock acquired)
+
+    Payment->>DB: BEGIN TRANSACTION
+
+    Payment->>DB: SELECT balance FROM owners<br/>WHERE id = 123<br/>FOR UPDATE
+    DB-->>Payment: balance = 500000
+
+    Payment->>Payment: Check: 500000 >= 257250 ✓
+    Payment->>Payment: New balance: 500000 - 257250 = 242750
+
+    Payment->>DB: UPDATE owners<br/>SET balance = 242750<br/>WHERE id = 123
+
+    Payment->>DB: INSERT INTO transactions<br/>kind = 'payment', status = 'SUCCESS'
+
+    Payment->>DB: INSERT INTO payment_history<br/>amount = 257250, status = 'SUCCESS'
+
+    Payment->>DB: COMMIT
+
+    Payment->>Redis: SET balance:owner:123 242750<br/>TTL 300s
+
+    Payment->>Redis: DEL payment:lock:owner:123
+
+    Payment->>Kafka: Produce: fuel.saga.step.response<br/>{step: 5, status: "SUCCESS"}
+    Payment->>Kafka: Produce: fuel.payment.success<br/>{transactionCode, orderCode, amount}
+
+    Note over Camera,DB: PHASE 7: Cập Nhật Tồn Kho
+
+    Kafka-->>Orchestrator: Consume: fuel.saga.step.response
+
+    Orchestrator->>DB: UPDATE saga_step_logs<br/>step_order=5, step_status='SUCCESS'
+    Orchestrator->>DB: UPDATE saga_instances<br/>current_step = 6
+
+    Note over Orchestrator: Step 6: UPDATE_INVENTORY
+
+    Orchestrator->>Kafka: Produce: fuel.saga.step.command<br/>{step: 6, action: "UPDATE_INVENTORY"}
+
+    Kafka-->>Gas: Consume: fuel.saga.step.command
+
+    Gas->>DB: UPDATE fuel_inventory<br/>SET current_volume = current_volume - 10.5<br/>WHERE station_id = 1 AND fuel_type = 'RON95'
+
+    Gas->>Redis: HSET inventory:station:1<br/>RON95 49989.5
+
+    Gas->>Kafka: Produce: fuel.saga.step.response<br/>{step: 6, status: "SUCCESS"}
+    Gas->>Kafka: Produce: fuel.inventory.updated<br/>{stationId, fuelType, newVolume}
+
+    Note over Camera,DB: PHASE 8: Hoàn Tất Đơn Hàng
+
+    Kafka-->>Orchestrator: Consume: fuel.saga.step.response
+
+    Orchestrator->>DB: UPDATE saga_step_logs<br/>step_order=6, step_status='SUCCESS'
+    Orchestrator->>DB: UPDATE saga_instances<br/>current_step = 7
+
+    Note over Orchestrator: Step 7: COMPLETE_ORDER
+
+    Orchestrator->>Kafka: Produce: fuel.saga.step.command<br/>{step: 7, action: "COMPLETE_ORDER"}
+
+    Kafka-->>Order: Consume: fuel.saga.step.command
+
+    Order->>DB: UPDATE fuel_order<br/>SET order_status = 'COMPLETED'<br/>quantity_liters = 10.5<br/>total_amount = 257250
+
+    Order->>Redis: HSET order:ORD20250101000001<br/>status "COMPLETED"
+
+    Order->>Kafka: Produce: fuel.saga.step.response<br/>{step: 7, status: "SUCCESS"}
+    Order->>Kafka: Produce: fuel.order.completed<br/>{orderCode, status}
+
+    Note over Camera,DB: PHASE 9: Gửi Thông Báo
+
+    Kafka-->>Orchestrator: Consume: fuel.saga.step.response
+
+    Orchestrator->>DB: UPDATE saga_step_logs<br/>step_order=7, step_status='SUCCESS'
+    Orchestrator->>DB: UPDATE saga_instances<br/>current_step = 8
+
+    Note over Orchestrator: Step 8: SEND_NOTIFICATION
+
+    Orchestrator->>Kafka: Produce: fuel.saga.step.command<br/>{step: 8, action: "SEND_NOTIFICATION"}
+
+    Kafka-->>Notification: Consume: fuel.saga.step.command
+
+    Notification->>Redis: SADD notification:sent:ORD20250101000001<br/>"PAYMENT_SUCCESS"
+    Redis-->>Notification: 1 (not duplicate)
+
+    Notification->>Notification: Build message:<br/>"Thanh toan thanh cong 257,250d<br/>cho 10.5L RON95. So du: 242,750d"
+
+    Notification->>DB: INSERT INTO notifications<br/>send_status = 'SENT'
+
+    Notification->>Notification: Send SMS (mock)
+
+    Notification->>Kafka: Produce: fuel.saga.step.response<br/>{step: 8, status: "SUCCESS"}
+
+    Note over Camera,DB: PHASE 10: Hoàn Tất SAGA
+
+    Kafka-->>Orchestrator: Consume: fuel.saga.step.response
+
+    Orchestrator->>DB: UPDATE saga_step_logs<br/>step_order=8, step_status='SUCCESS'
+
+    Orchestrator->>DB: UPDATE saga_instances<br/>saga_status = 'COMPLETED'<br/>completed_at = NOW()
+
+    Orchestrator->>Redis: DEL saga:lock:ORD20250101000001
+
+    Orchestrator->>Kafka: Produce: fuel.saga.completed<br/>{sagaId, orderCode}
+
+    Note over Camera,DB: ✓ HOÀN TẤT - Tổng thời gian: ~5 phút

@@ -1,0 +1,23 @@
+-- Initialize master data for Vietnamese Vehicle Models
+INSERT INTO vehicle_model (name, type_vehicle, fuel_type, capacity_fuel) VALUES
+('Honda Wave Alpha', 'BIKE_110CC', 'RON95', 3.7),
+('Honda Vision', 'BIKE_110CC', 'RON95', 4.9),
+('Honda Air Blade 125', 'BIKE_125CC', 'RON95', 4.4),
+('Honda Air Blade 160', 'BIKE_150CC', 'RON95', 4.4),
+('Honda SH 150i', 'BIKE_150CC', 'RON95', 7.8),
+('Honda Winner X', 'BIKE_150CC', 'RON95', 4.5),
+('Yamaha Sirius', 'BIKE_110CC', 'RON95', 3.8),
+('Yamaha Exciter 150/155', 'BIKE_150CC', 'RON95', 5.4),
+('Yamaha NVX 155', 'BIKE_150CC', 'RON95', 5.5),
+('VinFast Feliz S', 'ELECTRIC_BIKE', 'ELECTRONIC', 3.5),
+('VinFast Klara S', 'ELECTRIC_BIKE', 'ELECTRONIC', 3.5),
+('VinFast Evo200', 'ELECTRIC_BIKE', 'ELECTRONIC', 3.5),
+('VinFast VF 5 Plus', 'ELECTRIC_CAR', 'ELECTRONIC', 37.23),
+('VinFast VF e34', 'ELECTRIC_CAR', 'ELECTRONIC', 41.9),
+('VinFast VF 8', 'ELECTRIC_CAR', 'ELECTRONIC', 87.7),
+('VinFast VF 9', 'ELECTRIC_CAR', 'ELECTRONIC', 123.0),
+('Toyota Vios', 'CAR_SEDAN', 'RON95', 42.0),
+('Mitsubishi Xpander', 'CAR_SUV', 'RON95', 45.0),
+('Ford Ranger', 'TRUCK', 'DIESEL', 80.0),
+('Isuzu QKR (Light Truck)', 'TRUCK', 'DIESEL', 100.0),
+('Vin Bus', 'BUS', 'DIESEL', 500.0);

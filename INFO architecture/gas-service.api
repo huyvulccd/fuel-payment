@@ -1,0 +1,50 @@
+### gas_stations
+
+- GET /gas-stations
+- GET /gas-stations/{id}
+- PUT /gas-stations/{id}
+
+### fuel_pumps
+
+- GET /fuel-pumps/{station_id}
+- PUT /fuel-pumps/{id}
+
+### fuel_prices
+
+- GET /fuel-prices
+- PUT /fuel-prices/{id}
+
+### pump_sessions
+
+- GET /pump-sessions/{order_code}
+- PUT /pump-sessions/{id}
+- POST /pump-sessions/register
+"""
+request {
+    pumpId: Long,
+    orderCode: string,
+    licensePlate: string,
+    fuelType: string,
+    quantityLiters: double,
+    unitPrice: double,
+    totalAmount: double
+}
+response {
+    sessionCode: string,
+    pumpId: Long,
+    orderCode: string,
+    licensePlate: string,
+    fuelType: string,
+    quantityLiters: double,
+    unitPrice: double,
+    totalAmount: double,
+    sessionStatus: string,
+    startedAt: timestamp,
+    completedAt: timestamp
+}
+"""
+
+### fuel_inventory
+
+- GET /fuel-inventory/{station_id}
+- PUT /fuel-inventory/{id}
