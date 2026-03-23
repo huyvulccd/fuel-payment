@@ -99,7 +99,7 @@ public class VehicleService extends UtilityService {
         totalEnergyRepository.save(energy);
 
         // Calculate minBalance adjustment (only for the new vehicle)
-        BigDecimal currentPrice = redisTool.getBigDecimal(RedisTool.CURRENT_FUEL_PRICE);
+        BigDecimal currentPrice = redisTool.getBigDecimal(RedisTool.CURRENT_FUEL_PRICE + fuelType);
         BigDecimal minBalanceToAdd = capacity.multiply(currentPrice);
 
         owner.setMinBalance(owner.getMinBalance().add(minBalanceToAdd));

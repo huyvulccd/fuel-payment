@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Component
 @RequiredArgsConstructor
 public class RedisTool {
-	public static final String CURRENT_FUEL_PRICE = "current_fuel_price";
+	public static final String CURRENT_FUEL_PRICE = "fuel:price:";
 
 	private final StringRedisTemplate redisTemplate;
 

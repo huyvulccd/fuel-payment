@@ -6,7 +6,7 @@ This checklist focuses on **completing** the **Fuel Payment System** features wh
 *Goal: Complete the foundation for Owners, Vehicles, and Models.*
 - [ ] **Week 1: Entity & Database Foundation**
     - Complete mapping for `Owner`, `Vehicle`, `VehicleModel`.
-    - Implement `UtilityService` and base validation logic.
+    - Implnemet `UtilityService` and base validation logic.
 - [ ] **Week 2: Lifecycle Management**
     - Complete `registerOwner`, `updateOwner`, and search by `idPersonal`.
     - Implement the `TotalEnergy` table to track cumulative capacities.

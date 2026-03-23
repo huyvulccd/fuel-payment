@@ -1,0 +1,11 @@
+-- ============================================================
+-- gas-service-data.init
+-- Dữ liệu khởi tạo cho bảng fuel_prices
+-- Giá xăng là_current = TRUE (giá hiện hành)
+-- ============================================================
+
+INSERT INTO fuel_prices (fuel_type, price, effective_from, is_current)
+VALUES
+    ('RON95',  24500.00, '2025-01-01 00:00:00', TRUE),
+    ('E5',     23500.00, '2025-01-01 00:00:00', TRUE),
+    ('DIESEL', 21000.00, '2025-01-01 00:00:00', TRUE);
