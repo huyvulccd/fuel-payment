@@ -1,10 +1,10 @@
-# ⛽ Fuel Payment System
+# Fuel Payment System
 
 > A high-performance, microservices-based fuel payment platform designed for scalability, real-time pricing synchronization, and guaranteed transactional integrity — built for the Vietnamese energy sector.
 
 ---
 
-## 📦 Microservices Overview
+## Microservices Overview
 
 | Service | Responsibility |
 |---|---|
@@ -16,7 +16,7 @@
 
 ---
 
-## 🚀 Core Flow — SAGA Orchestration Pattern
+## Core Flow — SAGA Orchestration Pattern
 
 The entire fuel purchase lifecycle is managed by a **SAGA Orchestrator** coordinating 8 steps across all services via Kafka. Below are the key phases:
 
@@ -152,12 +152,12 @@ sequenceDiagram
     Orchestrator->>DB: UPDATE saga_instances SET saga_status='COMPLETED'
     Orchestrator->>Redis: DEL saga:lock:ORD...
     Orchestrator->>Kafka: Produce → fuel.saga.completed
-    Note over Orchestrator: ✅ Total time: ~5 seconds
+    Note over Orchestrator: Total time: ~5 seconds
 ```
 
 ---
 
-## ⚡ Redis — Full Capability Map
+## Redis — Full Capability Map
 
 Redis is used across **5 distinct patterns** in this system:
 
@@ -208,7 +208,7 @@ HGET inventory:station:1 RON95 → 49989.5
 
 ---
 
-## 📡 Kafka — Full Capability Map
+## Kafka — Full Capability Map
 
 ### Topic Registry
 
@@ -252,7 +252,7 @@ flowchart TD
 
 ---
 
-## 🛠️ Performance & Concurrency
+## Performance & Concurrency
 
 ### Locking Strategy
 
@@ -270,7 +270,7 @@ flowchart TD
 
 ---
 
-## 📈 Extension Technologies
+## Extension Technologies
 
 ### 1. ELK Stack — Real-Time Analytics
 
@@ -351,7 +351,7 @@ Full integration tests run against real containers — no mocking of infrastruct
 
 ---
 
-## 🏗️ Infrastructure
+## Infrastructure
 
 ```yaml
 # docker-compose services
@@ -364,7 +364,7 @@ services:
 
 ---
 
-## 🗺️ Development Roadmap
+## Development Roadmap
 
 | Phase | Weeks | Focus |
 |---|---|---|
