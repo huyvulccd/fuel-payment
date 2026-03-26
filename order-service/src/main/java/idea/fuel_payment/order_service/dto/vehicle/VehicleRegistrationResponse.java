@@ -19,6 +19,7 @@ public record VehicleRegistrationResponse(
 				null,
 				null,
 				null,
+				null,
 				messages
 				);
 	}

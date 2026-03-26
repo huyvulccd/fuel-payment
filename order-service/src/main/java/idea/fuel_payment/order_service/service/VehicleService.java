@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -99,7 +101,12 @@ public class VehicleService extends UtilityService {
         totalEnergyRepository.save(energy);
 
         // Calculate minBalance adjustment (only for the new vehicle)
-        BigDecimal currentPrice = redisTool.getBigDecimal(RedisTool.CURRENT_FUEL_PRICE + fuelType);
+        Optional<String> otpJsonFuels = redisTool.get("fuel-prices::all-current");
+        Map<String, Object> priceFuels  = Collections.emptyMap();
+        if (otpJsonFuels.isPresent())
+            priceFuels = RedisTool.toMap(otpJsonFuels.get());
+
+        BigDecimal currentPrice = getBigDecimal(priceFuels, fuelType);
         BigDecimal minBalanceToAdd = capacity.multiply(currentPrice);
 
         owner.setMinBalance(owner.getMinBalance().add(minBalanceToAdd));

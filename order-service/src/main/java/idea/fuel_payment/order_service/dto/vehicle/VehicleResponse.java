@@ -38,7 +38,7 @@ public record VehicleResponse(
 				vehicle.getOwner() != null ? vehicle.getOwner().getName() : null,
 				vehicle.getOwner() != null ? vehicle.getOwner().getIdPersonal() : null,
 				vehicle.getOwner() != null ? vehicle.getOwner().getBalance() : null,
-				vehicle.getMinBalance(),
+				vehicle.getOwner() != null ? vehicle.getOwner().getMinBalance() : null,
 				vehicle.getStatus() != null ? vehicle.getStatus().name() : null,
 				vehicle.getCreatedAt(),
 				vehicle.getUpdatedAt()

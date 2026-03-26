@@ -1,6 +1,7 @@
 package idea.fuel_payment.order_service.domain.common;
 
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -69,5 +70,10 @@ public abstract class UtilityService {
 			return false;
 		String regex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
 		return email.matches(regex);
+	}
+	public BigDecimal getBigDecimal(Map<String, Object> map, String key) {
+		if (map.containsKey(key))
+			return BigDecimal.valueOf(Long.parseLong(map.get(key).toString()));
+		return BigDecimal.ZERO;
 	}
 }
