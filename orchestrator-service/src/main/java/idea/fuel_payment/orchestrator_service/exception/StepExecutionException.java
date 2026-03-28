@@ -1,22 +1,22 @@
 package idea.fuel_payment.orchestrator_service.exception;
 
-import idea.fuel_payment.orchestrator_service.domain.enums.StepName;
+import idea.fuel_payment.orchestrator_service.domain.entity.SagaStepLog;
 
 public class StepExecutionException extends SagaException {
 
-	private final StepName stepName;
+	private final SagaStepLog.StepName stepName;
 
-	public StepExecutionException(StepName stepName, String message) {
+	public StepExecutionException(SagaStepLog.StepName stepName, String message) {
 		super(message);
 		this.stepName = stepName;
 	}
 
-	public StepExecutionException(StepName stepName, String message, Throwable cause) {
+	public StepExecutionException(SagaStepLog.StepName stepName, String message, Throwable cause) {
 		super(message, cause);
 		this.stepName = stepName;
 	}
 
-	public StepName getStepName() {
+	public SagaStepLog.StepName getStepName() {
 		return stepName;
 	}
 }

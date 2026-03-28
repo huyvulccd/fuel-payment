@@ -1,6 +1,7 @@
 package idea.fuel_payment.gas_service.dto.fuel_price;
 
 import idea.fuel_payment.gas_service.domain.entity.FuelPrice;
+import idea.fuel_payment.gas_service.domain.entity.FuelType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 public class FuelPriceResponse {
 
     private Long id;
-    private FuelPrice.FuelType fuelType;
+    private FuelType fuelType;
     private BigDecimal price;
     private LocalDateTime effectiveFrom;
     private Boolean isCurrent;

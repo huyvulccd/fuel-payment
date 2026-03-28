@@ -2,8 +2,10 @@ package idea.fuel_payment.orchestrator_service.domain.enums;
 
 public enum StepStatus {
 	PENDING,
-	PROCESSING,
+	IN_PROGRESS,
 	SUCCESS,
 	FAILED,
-	COMPENSATED
+	COMPENSATING,
+	COMPENSATED,
+	SKIPPED
 }

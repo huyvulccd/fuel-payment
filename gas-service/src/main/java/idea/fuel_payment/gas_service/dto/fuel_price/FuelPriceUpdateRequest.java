@@ -1,5 +1,6 @@
 package idea.fuel_payment.gas_service.dto.fuel_price;
 
+import idea.fuel_payment.gas_service.domain.entity.FuelType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -14,6 +15,8 @@ public class FuelPriceUpdateRequest {
     @DecimalMin(value = "0.01", message = "Price must be positive")
     private BigDecimal price;
 
-    @NotNull(message = "Effective from is required")
+	@NotNull(message = "fuel type is required")
+	private FuelType fuelType;
+
     private LocalDateTime effectiveFrom;
 }

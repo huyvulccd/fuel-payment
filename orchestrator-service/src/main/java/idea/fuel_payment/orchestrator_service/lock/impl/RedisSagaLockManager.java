@@ -1,32 +1,61 @@
 package idea.fuel_payment.orchestrator_service.lock.impl;
 
 import idea.fuel_payment.orchestrator_service.lock.SagaLockManager;
-import org.springframework.context.annotation.Profile;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 
+@Slf4j
 @Component
-@Profile("!test")
+@RequiredArgsConstructor
 public class RedisSagaLockManager implements SagaLockManager {
-
-	private static final String LOCK_PREFIX = "saga:lock:";
 
 	private final StringRedisTemplate redisTemplate;
 
-	public RedisSagaLockManager(StringRedisTemplate redisTemplate) {
-		this.redisTemplate = redisTemplate;
+	@Value("${saga.lock.prefix:saga:lock:}")
+	private String lockPrefix;
+
+	@Value("${saga.lock.timeout-seconds:300}")
+	private long timeoutSeconds;
+
+	@Override
+	public boolean acquireLock(String orderCode) {
+		String key = lockPrefix + orderCode;
+		Boolean success = redisTemplate.opsForValue()
+				.setIfAbsent(key, "LOCKED",
+						Duration.ofSeconds(timeoutSeconds));
+
+		boolean acquired = Boolean.TRUE.equals(success);
+		log.info("Lock {} for order {}: {}",
+				acquired ? "acquired" : "failed",
+				orderCode, key);
+		return acquired;
 	}
 
 	@Override
-	public boolean tryLock(String key, Duration ttl) {
-		Boolean ok = redisTemplate.opsForValue().setIfAbsent(LOCK_PREFIX + key, "1", ttl);
-		return Boolean.TRUE.equals(ok);
+	public void releaseLock(String orderCode) {
+		String key = lockPrefix + orderCode;
+		Boolean deleted = redisTemplate.delete(key);
+		log.info("Lock released for order {}: {}",
+				orderCode, deleted);
 	}
 
 	@Override
-	public void unlock(String key) {
-		redisTemplate.delete(LOCK_PREFIX + key);
+	public boolean isLocked(String orderCode) {
+		String key = lockPrefix + orderCode;
+		return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+	}
+
+	@Override
+	public boolean renewLock(String orderCode) {
+		String key = lockPrefix + orderCode;
+		return Boolean.TRUE.equals(
+				redisTemplate.expire(key,
+						Duration.ofSeconds(timeoutSeconds))
+		);
 	}
 }

@@ -22,7 +22,7 @@ import java.util.Map;
 public class RedisConfig {
 
     /** Cache name for current price fuels. */
-    public static final String CACHE_FUEL_PRICES = "fuel-prices";
+    public static final String CACHE_FUEL_PRICES = "fuel-prices::all-current";
 
     @Bean
     public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory connectionFactory) {

@@ -1,33 +1,29 @@
 package idea.fuel_payment.orchestrator_service.domain.entity;
 
+import idea.fuel_payment.orchestrator_service.domain.enums.StepAction;
 import idea.fuel_payment.orchestrator_service.domain.enums.StepName;
 import idea.fuel_payment.orchestrator_service.domain.enums.StepStatus;
 import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
-@Entity
-@Table(name = "saga_step_logs",
-		uniqueConstraints = {
-				@UniqueConstraint(name = "uk_saga_step", columnNames = {"saga_id", "step_order"})
-		},
-		indexes = {
-				@Index(name = "idx_step_saga", columnList = "saga_id")
-		})
 @Getter
 @Setter
 @Builder
@@ -39,35 +35,80 @@ public class SagaStepLog {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "saga_id", nullable = false, length = 50)
+	@Column(name = "saga_id", nullable = false, length = 50,
+			insertable = false, updatable = false)
 	private String sagaId;
 
 	@Column(name = "step_order", nullable = false)
 	private Integer stepOrder;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "step_name", nullable = false, length = 100)
+	@Column(name = "step_name", nullable = false, length = 50)
 	private StepName stepName;
 
-	@Column(name = "service_name", nullable = false, length = 50)
-	private String serviceName;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "step_action", nullable = false, length = 50)
+	private StepAction stepAction;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "step_status")
+	@Column(name = "step_status", nullable = false, length = 20)
 	private StepStatus stepStatus;
 
-	@Column(name = "request_payload", length = 10_000)
-	private String requestPayload;
+	@JdbcTypeCode(SqlTypes.JSON)
+	@Column(name = "request_payload", columnDefinition = "jsonb")
+	private Map<String, Object> requestPayload;
 
-	@Column(name = "response_payload", length = 10_000)
-	private String responsePayload;
+	@JdbcTypeCode(SqlTypes.JSON)
+	@Column(name = "response_payload", columnDefinition = "jsonb")
+	private Map<String, Object> responsePayload;
 
-	@Column(name = "error_message", length = 500)
+	@Column(name = "error_message", columnDefinition = "TEXT")
 	private String errorMessage;
 
+	@Column(name = "retry_count", nullable = false)
+	@Builder.Default
+	private Integer retryCount = 0;
+
+	@Column(name = "started_at")
 	private LocalDateTime startedAt;
+
+	@Column(name = "completed_at")
 	private LocalDateTime completedAt;
 
-	@Column(name = "created_at", insertable = false, updatable = false)
+	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt;
+
+	// Relationship
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "saga_id", referencedColumnName = "saga_id")
+	private SagaInstance sagaInstance;
+
+	@PrePersist
+	protected void onCreate() {
+		if (createdAt == null) createdAt = LocalDateTime.now();
+		if (stepStatus == null) stepStatus = StepStatus.PENDING;
+		if (retryCount == null) retryCount = 0;
+	}
+
+	// Domain Methods
+	public void markInProgress() {
+		this.stepStatus = StepStatus.IN_PROGRESS;
+		this.startedAt = LocalDateTime.now();
+	}
+
+	public void markSuccess(Map<String, Object> responsePayload) {
+		this.stepStatus = StepStatus.SUCCESS;
+		this.responsePayload = responsePayload;
+		this.completedAt = LocalDateTime.now();
+	}
+
+	public void markFailed(String errorMessage) {
+		this.stepStatus = StepStatus.FAILED;
+		this.errorMessage = errorMessage;
+		this.completedAt = LocalDateTime.now();
+	}
+
+	public void incrementRetry() {
+		this.retryCount++;
+	}
 }

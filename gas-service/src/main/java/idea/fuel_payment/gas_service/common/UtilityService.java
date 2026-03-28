@@ -1,8 +1,10 @@
 package idea.fuel_payment.gas_service.common;
 
 import java.lang.reflect.Array;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 public abstract class UtilityService {
@@ -11,36 +13,33 @@ public abstract class UtilityService {
 			case null -> {
 				return true;
 			}
-
 			// String
 			case String str -> {
 				return str.isEmpty();
 			}
-
 
 			// CharSequence (StringBuilder, StringBuffer, etc.)
 			case CharSequence cs -> {
 				return cs.isEmpty();
 			}
 
-
 			// Collection (List, Set, Queue, etc.)
 			case Collection<?> collection -> {
 				return collection.isEmpty();
 			}
-
 
 			// Map
 			case Map<?, ?> map -> {
 				return map.isEmpty();
 			}
 
-
 			// Optional
 			case Optional<?> optional -> {
 				return optional.isEmpty();
 			}
+
 			default -> {
+
 			}
 		}
 
@@ -69,5 +68,16 @@ public abstract class UtilityService {
 			return false;
 		String regex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
 		return email.matches(regex);
+	}
+
+	public <T> T getValue(T first, T second, T valDef) {
+		if (Objects.nonNull(first))
+			return first;
+		if (Objects.nonNull(second))
+			return second;
+
+		if (Objects.isNull(valDef))
+			throw new IllegalArgumentException("value default must not null");
+		return valDef;
 	}
 }

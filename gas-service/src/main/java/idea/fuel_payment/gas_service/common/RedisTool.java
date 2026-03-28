@@ -1,5 +1,6 @@
 package idea.fuel_payment.gas_service.common;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,9 @@ public class RedisTool {
     private final StringRedisTemplate redisTemplate;
 
     // ───────── STRING ─────────
+    public <T> void set(String key, T value) {
+        set(key, toJson(value));
+    }
 
     /** Ghi value (không TTL). */
     public void set(String key, String value) {
@@ -109,5 +113,15 @@ public class RedisTool {
         } catch (Exception e) {
             throw new RuntimeException("Convert map to JSON failed", e);
         }
+    }
+
+    public static <T> String toJson(T any) {
+        ObjectMapper objectMapper = new ObjectMapper();
+	    try {
+		    return objectMapper.writeValueAsString(any);
+	    } catch (JsonProcessingException e) {
+            String message = "Convert " + any.getClass() + "to JSON failed";
+            throw new RuntimeException(message, e);
+	    }
     }
 }

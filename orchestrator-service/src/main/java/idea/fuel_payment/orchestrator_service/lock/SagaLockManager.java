@@ -1,10 +1,11 @@
 package idea.fuel_payment.orchestrator_service.lock;
 
-import java.time.Duration;
-
 public interface SagaLockManager {
+	boolean acquireLock(String orderCode);
 
-	boolean tryLock(String key, Duration ttl);
+	void releaseLock(String orderCode);
 
-	void unlock(String key);
+	boolean isLocked(String orderCode);
+
+	boolean renewLock(String orderCode);
 }
