@@ -11,17 +11,19 @@ import idea.fuel_payment.order_service.repository.OwnerRepository;
 import idea.fuel_payment.order_service.repository.TotalEnergyRepository;
 import idea.fuel_payment.order_service.repository.VehicleModelRepository;
 import idea.fuel_payment.order_service.repository.VehicleRepository;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class VehicleService extends UtilityService {
+    public class VehicleService extends UtilityService {
 
     private final VehicleRepository vehicleRepository;
 
@@ -59,10 +61,10 @@ public class VehicleService extends UtilityService {
         }
 
         Owner owner = ownerRepository.findById(request.ownerId())
-                .orElseThrow(() -> new RuntimeException("Owner not found with id: " + request.ownerId()));
+                .orElseThrow(() -> new ValidationException("Owner not found with id: " + request.ownerId()));
 
         VehicleModel model = vehicleModelRepository.findByName(request.nameVehicleModel())
-                .orElseThrow(() -> new RuntimeException("Vehicle model not found: " + request.nameVehicleModel()));
+                .orElseThrow(() -> new ValidationException("Vehicle model not found: " + request.nameVehicleModel()));
 
         Vehicle vehicle = new Vehicle();
         vehicle.setLicensePlate(request.licensePlate());
@@ -99,7 +101,8 @@ public class VehicleService extends UtilityService {
         totalEnergyRepository.save(energy);
 
         // Calculate minBalance adjustment (only for the new vehicle)
-        BigDecimal currentPrice = redisTool.getBigDecimal(RedisTool.CURRENT_FUEL_PRICE + fuelType);
+        List<Map<String, Object>> prices = redisTool.getAsMaps(RedisTool.CURRENT_FUEL_PRICE);
+        BigDecimal currentPrice = toBigDecimal(getValue(prices, "fuelType", fuelType, "price", BigDecimal.class));
         BigDecimal minBalanceToAdd = capacity.multiply(currentPrice);
 
         owner.setMinBalance(owner.getMinBalance().add(minBalanceToAdd));

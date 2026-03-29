@@ -1,7 +1,12 @@
 package idea.fuel_payment.order_service.domain.common;
 
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -69,5 +74,97 @@ public abstract class UtilityService {
 			return false;
 		String regex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
 		return email.matches(regex);
+	}
+
+	protected BigDecimal toBigDecimal(Object input) {
+		if (input == null) {
+			return null;
+		}
+
+		if (input instanceof BigDecimal) {
+			return (BigDecimal) input;
+		}
+
+		if (input instanceof Integer || input instanceof Long) {
+			return BigDecimal.valueOf(((Number) input).longValue());
+		}
+
+		if (input instanceof Double || input instanceof Float) {
+			return new BigDecimal(input.toString());
+		}
+
+		if (input instanceof Number) {
+			return new BigDecimal(input.toString());
+		}
+
+		if (input instanceof String) {
+			String str = ((String) input).trim();
+			if (str.isEmpty()) {
+				return null;
+			}
+			try {
+				return new BigDecimal(str);
+			} catch (NumberFormatException e) {
+				throw new IllegalArgumentException("Cannot convert to BigDecimal: " + input, e);
+			}
+		}
+
+		throw new IllegalArgumentException("Unsupported type: " + input.getClass());
+	}
+	@SuppressWarnings("unchecked")
+	protected <T> T getValue(Object o, Class<T> clazz) {
+		if (o == null) {
+			return null;
+		}
+
+		if (clazz.isInstance(o)) {
+			return (T) o;
+		}
+
+		// BigDecimal
+		if (clazz == BigDecimal.class) {
+			if (o instanceof Number || o instanceof String) {
+				return (T) new BigDecimal(o.toString());
+			}
+		}
+
+		// String
+		if (clazz == String.class) {
+			return (T) o.toString();
+		}
+
+		// Integer
+		if (clazz == Integer.class) {
+			return (T) Integer.valueOf(o.toString());
+		}
+
+		// Long
+		if (clazz == Long.class) {
+			return (T) Long.valueOf(o.toString());
+		}
+
+		// Double
+		if (clazz == Double.class) {
+			return (T) Double.valueOf(o.toString());
+		}
+
+		// Boolean
+		if (clazz == Boolean.class) {
+			return (T) Boolean.valueOf(o.toString());
+		}
+
+		throw new IllegalArgumentException(
+				"Unsupported conversion from " + o.getClass() + " to " + clazz
+		);
+	}
+
+	protected <T> T getValue(List<Map<String, Object>> list, String keyField, @NonNull String strCompare, String valueField, Class<T> clazz) {
+		for (Map<String, Object> map : list) {
+			if (strCompare.equals(map.get(keyField).toString())) {
+				Object o = map.get(valueField);
+				return getValue(o, clazz);
+			}
+		}
+		return null;
 	}
 }

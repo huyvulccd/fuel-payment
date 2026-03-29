@@ -41,7 +41,7 @@ public class FuelPriceService extends UtilityService {
 		return fuelPriceRepository.findByIsCurrentTrue();
 	}
 
-	//    @CacheEvict(cacheNames = RedisConfig.CACHE_FUEL_PRICES, allEntries = true)
+	// @CacheEvict(cacheNames = RedisConfig.CACHE_FUEL_PRICES, allEntries = true)
 	// delete all cache related to CACHE_FUEL_PRICES
 	@Transactional
 	public List<FuelPriceResponse> updatePrice(FuelPricesUpdateRequest request) {

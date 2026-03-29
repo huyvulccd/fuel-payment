@@ -9,9 +9,8 @@ public record VehicleResponse(
         Long id,
         String licensePlate,
         String ownerName,
-        String idCard,
-        BigDecimal balance,
-        BigDecimal minBalance,
+					        String idCard,
+					        BigDecimal balance,
         String status,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
@@ -20,7 +19,6 @@ public record VehicleResponse(
 		return new VehicleResponse(
 				null,
 				licensePlate,
-				null,
 				null,
 				null,
 				null,
@@ -38,7 +36,6 @@ public record VehicleResponse(
 				vehicle.getOwner() != null ? vehicle.getOwner().getName() : null,
 				vehicle.getOwner() != null ? vehicle.getOwner().getIdPersonal() : null,
 				vehicle.getOwner() != null ? vehicle.getOwner().getBalance() : null,
-				vehicle.getMinBalance(),
 				vehicle.getStatus() != null ? vehicle.getStatus().name() : null,
 				vehicle.getCreatedAt(),
 				vehicle.getUpdatedAt()

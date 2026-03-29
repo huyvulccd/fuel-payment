@@ -5,6 +5,7 @@ public enum Message {
 	NO_EXIST_VEHICLE_MODEL("No exists vehicle model: %s"),
 	INVALID_LENGTH_NAME("Name's %s should shorter than 100 characters");
 
+	public static final String PLS_CALL_US = "Failure, Please contact us by email";
 	private final String template;
 
 	Message(String template) {

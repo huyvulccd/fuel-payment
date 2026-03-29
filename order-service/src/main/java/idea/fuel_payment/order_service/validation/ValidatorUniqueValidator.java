@@ -1,6 +1,7 @@
 package idea.fuel_payment.order_service.validation;
 
 import idea.fuel_payment.order_service.repository.OwnerRepository;
+import idea.fuel_payment.order_service.repository.VehicleRepository;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;

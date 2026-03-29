@@ -10,7 +10,6 @@ public record VehicleRegistrationRequest(
         @ValidatorUnique(fieldName = "licensePlate", message = "License plate already exists")
         String licensePlate,
 
-        @NotBlank
         Long ownerId,
 
         @NotBlank
