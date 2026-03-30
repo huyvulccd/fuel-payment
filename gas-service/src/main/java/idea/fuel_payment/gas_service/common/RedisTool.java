@@ -9,8 +9,10 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Common utility wrapping StringRedisTemplate.
@@ -22,6 +24,10 @@ import java.util.Optional;
 public class RedisTool {
 
     private final StringRedisTemplate redisTemplate;
+
+    public static String concatKey(String... args) {
+	    return String.join("::", args);
+    }
 
     // ───────── STRING ─────────
     public <T> void set(String key, T value) {
@@ -89,6 +95,16 @@ public class RedisTool {
         log.debug("[Redis] HSET key={} field={} value={}", key, field, value);
     }
 
+    public void hSet(String key, Map<String, ?> map) {
+        Map<String, String> converted = map.entrySet().stream()
+                .collect(Collectors.toMap(
+		                Map.Entry::getKey,
+                        e -> e.getValue().toString()
+                ));
+        redisTemplate.opsForHash().putAll(key, converted);
+        log.debug("[Redis] HSET key={} map={}", key, converted);
+    }
+
     /** HGET field. */
     public Optional<String> hGet(String key, String field) {
         Object value = redisTemplate.opsForHash().get(key, field);
@@ -96,6 +112,33 @@ public class RedisTool {
         return Optional.ofNullable(value != null ? value.toString() : null);
     }
 
+    public <T> Map<String, T> hGet(String key, Class<T> clazz) {
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
+        log.debug("[Redis] HGETALL key={} -> {}", key, entries);
+
+        if (entries == null || entries.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        return entries.entrySet().stream()
+                .collect(Collectors.toMap(
+                        e -> String.valueOf(e.getKey()),
+                        e -> convertValue(e.getValue(), clazz)
+                ));
+    }
+    private <T> T convertValue(Object value, Class<T> clazz) {
+        if (value == null) return null;
+
+        if (clazz.isAssignableFrom(value.getClass())) {
+            return clazz.cast(value);
+        }
+
+        try {
+            return new ObjectMapper().readValue(value.toString(), clazz);
+        } catch (Exception e) {
+            throw new RuntimeException("Convert Redis value failed", e);
+        }
+    }
     public static Map<String, Object> toMap(String str) {
         try {
             ObjectMapper mapper = new ObjectMapper();

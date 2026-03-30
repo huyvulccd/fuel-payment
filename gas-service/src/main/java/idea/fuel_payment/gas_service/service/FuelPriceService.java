@@ -5,7 +5,6 @@ import idea.fuel_payment.gas_service.common.UtilityService;
 import idea.fuel_payment.gas_service.config.RedisConfig;
 import idea.fuel_payment.gas_service.domain.entity.FuelType;
 import idea.fuel_payment.gas_service.dto.fuel_price.FuelPriceUpdateRequest;
-import idea.fuel_payment.gas_service.dto.query.FuelPriceDto;
 import idea.fuel_payment.gas_service.dto.query.FuelPricePro;
 import idea.fuel_payment.gas_service.domain.entity.FuelPrice;
 import idea.fuel_payment.gas_service.dto.fuel_price.FuelPriceResponse;
@@ -13,10 +12,10 @@ import idea.fuel_payment.gas_service.dto.fuel_price.FuelPricesUpdateRequest;
 import idea.fuel_payment.gas_service.repository.FuelPriceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,11 +33,23 @@ public class FuelPriceService extends UtilityService {
 
 	// ───────── READ ─────────
 
-	@Cacheable(cacheNames = RedisConfig.CACHE_FUEL_PRICES, key = "'all-current'")
+//	@Cacheable(cacheNames = RedisConfig.CACHE_FUEL_PRICES, key = "'all-current'")
 	@Transactional(readOnly = true)
-	public List<FuelPricePro> getAllCurrentPrices() {
+	public Map<String, BigDecimal> getAllCurrentPrices() {
+		String key = RedisTool.concatKey(RedisConfig.CACHE_FUEL_PRICES, "all");
+		Map<String, BigDecimal> cache = redisTool.hGet(key, BigDecimal.class);
+		if (isNotEmpty(cache)) {
+			return cache;
+		}
+
 		log.debug("[Cache] MISS fuel-prices::all-current — querying DB");
-		return fuelPriceRepository.findByIsCurrentTrue();
+		List<FuelPricePro> byIsCurrentTrue = fuelPriceRepository.findByIsCurrentTrue();
+		Map<String, BigDecimal> collect = byIsCurrentTrue.stream().collect(Collectors.toMap(
+				e -> e.getFuelType().name(),
+				FuelPricePro::getPrice
+		));
+		redisTool.hSet(key, collect);
+		return collect;
 	}
 
 	// @CacheEvict(cacheNames = RedisConfig.CACHE_FUEL_PRICES, allEntries = true)
@@ -95,16 +106,26 @@ public class FuelPriceService extends UtilityService {
 
         List<FuelPrice> fuelsSaved = fuelPriceRepository.saveAll(updates);
 
-        // 3. Write-through price-only key → order-service dùng key này tra nhanh O(1)
-        String priceKey = RedisConfig.CACHE_FUEL_PRICES;
+        // 3. Write-through hash key used by getAllCurrentPrices(): fuel-prices::all
+        String allCurrentKey = RedisTool.concatKey(RedisConfig.CACHE_FUEL_PRICES, "all");
 
-		List<FuelPriceDto> fuelPricesToCache = fuelsSaved.stream().map(e ->
-				FuelPriceDto.builder()
-						.fuelType(e.getFuelType())
-						.price(e.getPrice()).build()).toList();
-
-        redisTool.set(priceKey, fuelPricesToCache);
-        log.debug("[Cache] Evicted fuel-prices cache. Updated price key={}", priceKey);
+        Map<String, BigDecimal> currentCache = redisTool.hGet(allCurrentKey, BigDecimal.class);
+        if (isNotEmpty(currentCache)) {
+	        Map<String, BigDecimal> patch = fuelsSaved.stream().collect(Collectors.toMap(
+			        e -> e.getFuelType().name(),
+			        FuelPrice::getPrice
+	        ));
+	        redisTool.hSet(allCurrentKey, patch);
+	        log.debug("[Cache] Patched fuel-prices hash key={} fields={}", allCurrentKey, patch.keySet());
+        } else {
+	        List<FuelPricePro> allCurrent = fuelPriceRepository.findByIsCurrentTrue();
+	        Map<String, BigDecimal> allCurrentMap = allCurrent.stream().collect(Collectors.toMap(
+			        e -> e.getFuelType().name(),
+			        FuelPricePro::getPrice
+	        ));
+	        redisTool.hSet(allCurrentKey, allCurrentMap);
+	        log.debug("[Cache] Rebuilt fuel-prices hash key={}", allCurrentKey);
+        }
 
 		return toResponse(fuelsSaved);
 	}
