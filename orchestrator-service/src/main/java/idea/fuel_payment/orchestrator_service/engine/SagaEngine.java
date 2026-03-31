@@ -64,10 +64,10 @@ public class SagaEngine {
     // =====================================================
     @Transactional
     public void startSaga(OrderCreatedEvent event) {
-        String orderCode = event.orderCode();
+        String orderCode = event.getOrderCode();
 
         log.info("Starting SAGA for order: {}", orderCode);
-//        MDC.put("orderCode", orderCode);
+        MDC.put("orderCode", orderCode);
 
         // Idempotency check
         if (sagaInstanceRepository.existsByOrderCode(orderCode)) {
@@ -109,7 +109,7 @@ public class SagaEngine {
             log.info("SAGA {} created, Step 1 marked SUCCESS",
                     sagaId);
 
-            // Chuyển sang Step 2
+            // Next to step 2
             executeNextStep(saga, 2);
 
         } catch (Exception e) {
@@ -125,11 +125,11 @@ public class SagaEngine {
     // =====================================================
     @Transactional
     public void handleStepResponse(SagaStepResponse response) {
-        String sagaId = response.sagaId();
-        int stepOrder = response.stepOrder();
+        String sagaId = response.getSagaId();
+        int stepOrder = response.getStepOrder();
 
         log.info("Received step response: saga={}, step={}, status={}",
-                sagaId, stepOrder, response.status());
+                sagaId, stepOrder, response.getStatus());
 //        MDC.put("sagaId", sagaId);
 
         SagaInstance saga = sagaInstanceRepository.findBySagaId(sagaId)
@@ -156,7 +156,7 @@ public class SagaEngine {
             return;
         }
 
-        if (response.status() == StepStatus.SUCCESS) {
+        if (response.getStatus() == StepStatus.SUCCESS) {
             handleStepSuccess(saga, response);
         } else {
             handleStepFailure(saga, response);
@@ -169,11 +169,11 @@ public class SagaEngine {
     // =====================================================
     @Transactional
     public void handlePumpCompleted(PumpCompletedEvent event) {
-        String orderCode = event.orderCode();
+        String orderCode = event.getOrderCode();
 
         log.info("Pump completed for order: {}, quantity: {}, amount: {}",
-                orderCode, event.quantityLiters(),
-                event.totalAmount());
+                orderCode, event.getQuantityLiters(),
+                event.getTotalAmount());
 
         SagaInstance saga =
                 sagaInstanceRepository.findByOrderCode(orderCode)
@@ -188,10 +188,10 @@ public class SagaEngine {
         if (payload == null) payload = new HashMap<>();
 
         payload.put("quantityLiters",
-                event.quantityLiters().toString());
+                event.getQuantityLiters().toString());
         payload.put("totalAmount",
-                event.totalAmount().toString());
-        payload.put("sessionCode", event.sessionCode());
+                event.getTotalAmount().toString());
+        payload.put("sessionCode", event.getSessionCode());
         saga.setPayload(payload);
 
         // Mark Step 4 (WAIT_PUMP_COMPLETE) as SUCCESS
@@ -199,9 +199,9 @@ public class SagaEngine {
                 StepAction.WAIT_PUMP_COMPLETE,
                 Map.of(
                         "quantityLiters",
-                        event.quantityLiters().toString(),
+                        event.getQuantityLiters().toString(),
                         "totalAmount",
-                        event.totalAmount().toString()
+                        event.getTotalAmount().toString()
                 ));
 
         sagaInstanceRepository.save(saga);
@@ -216,11 +216,11 @@ public class SagaEngine {
 
     private void handleStepSuccess(SagaInstance saga,
                                    SagaStepResponse response) {
-        int currentStep = response.stepOrder();
+        int currentStep = response.getStepOrder();
 
         // Log step success
         updateStepLog(saga.getSagaId(), currentStep,
-                StepStatus.SUCCESS, response.payload(),
+                StepStatus.SUCCESS, response.getPayload(),
                 null);
 
         // Update saga
@@ -240,7 +240,7 @@ public class SagaEngine {
                     definition.getStep(nextStep).orElseThrow();
 
             if (nextStepDef.asyncWait()) {
-                // Step cần chờ external event
+                // Step need to wait external event
                 // (WAIT_PUMP_COMPLETE)
                 log.info("Step {} is async wait, waiting for " +
                         "external event...", nextStep);
@@ -255,8 +255,8 @@ public class SagaEngine {
 
     private void handleStepFailure(SagaInstance saga,
                                    SagaStepResponse response) {
-        int failedStep = response.stepOrder();
-        String error = response.errorMessage();
+        int failedStep = response.getStepOrder();
+        String error = response.getErrorMessage();
 
         log.error("Step {} failed for saga {}: {}",
                 failedStep, saga.getSagaId(), error);
@@ -451,12 +451,12 @@ public class SagaEngine {
     private Map<String, Object> buildInitialPayload(
             OrderCreatedEvent event) {
         Map<String, Object> payload = new HashMap<>();
-        payload.put("orderCode", event.orderCode());
-        payload.put("licensePlate", event.licensePlate());
-        payload.put("ownerId", event.ownerId());
-        payload.put("stationId", event.stationId());
-        payload.put("pumpId", event.pumpId());
-        payload.put("fuelType", event.fuelType());
+        payload.put("orderCode", event.getOrderCode());
+        payload.put("licensePlate", event.getLicensePlate());
+        payload.put("ownerId", event.getOwnerId());
+        payload.put("stationId", event.getStationId());
+        payload.put("pumpId", event.getPumpId());
+        payload.put("fuelType", event.getFuelType());
         return payload;
     }
 }

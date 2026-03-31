@@ -1,9 +1,9 @@
 package idea.fuel_payment.orchestrator_service.compensation;
 
-import idea.fuel_payment.orchestrator_service.domain.entity.SagaStepLog;
+import idea.fuel_payment.orchestrator_service.domain.enums.StepName;
 
 @FunctionalInterface
 public interface CompensationStrategy {
 
-	void compensate(String sagaId, SagaStepLog.StepName stepName, String contextPayloadJson);
+	void compensate(String sagaId, StepName stepName, String contextPayloadJson);
 }

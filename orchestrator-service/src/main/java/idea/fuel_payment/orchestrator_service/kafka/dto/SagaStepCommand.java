@@ -1,20 +1,25 @@
 package idea.fuel_payment.orchestrator_service.kafka.dto;
 
 import idea.fuel_payment.orchestrator_service.domain.enums.StepAction;
-import idea.fuel_payment.orchestrator_service.domain.enums.StepName;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
+@Data
 @Builder
-public record SagaStepCommand(
-		String sagaId,
-		String orderCode,
-		Integer stepOrder,
-		StepAction action,
-		Map<String, Object>payload,
-		Long timestamp
-) {
+@NoArgsConstructor
+@AllArgsConstructor
+public class SagaStepCommand {
+	private String sagaId;
+	private String orderCode;
+	private Integer stepOrder;
+	private StepAction action;
+	private Map<String, Object> payload;
+	private Long timestamp;
+
 	public static SagaStepCommand of(
 			String sagaId,
 			String orderCode,

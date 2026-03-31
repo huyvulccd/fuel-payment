@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class FuelPurchaseSagaDefinition implements SagaDefinition {
+	String COMMAND_STEP = "fuel.saga.step.command";
 
 	private final List<SagaStepDefinition> steps;
 
@@ -29,7 +30,7 @@ public class FuelPurchaseSagaDefinition implements SagaDefinition {
 						.stepName(StepName.CREATE_ORDER)
 						.forwardAction(StepAction.CREATE_ORDER)
 						.compensationAction(StepAction.CANCEL_ORDER)
-						.targetTopic("fuel.saga.step.command")
+						.targetTopic(COMMAND_STEP)
 						.timeoutSeconds(30)
 						.compensable(true)
 						.asyncWait(false)
@@ -40,7 +41,7 @@ public class FuelPurchaseSagaDefinition implements SagaDefinition {
 						.stepName(StepName.CHECK_BALANCE)
 						.forwardAction(StepAction.CHECK_BALANCE)
 						.compensationAction(null)   // Không cần compensate
-						.targetTopic("fuel.saga.step.command")
+						.targetTopic(COMMAND_STEP)
 						.timeoutSeconds(30)
 						.compensable(false)
 						.asyncWait(false)
@@ -48,35 +49,36 @@ public class FuelPurchaseSagaDefinition implements SagaDefinition {
 
 				SagaStepDefinition.builder()
 						.stepOrder(3)
-						.stepName(StepName.PROCESS_PAYMENT)
-						.forwardAction(StepAction.PROCESS_PAYMENT)
-						.compensationAction(StepAction.REFUND_PAYMENT)
-						.targetTopic("fuel.saga.step.command")
-						.timeoutSeconds(30)
-						.compensable(true)
-						.asyncWait(false)
-						.build(),
-
-				SagaStepDefinition.builder()
-						.stepOrder(4)
 						.stepName(StepName.ACTIVATE_PUMP)
 						.forwardAction(StepAction.ACTIVATE_PUMP)
 						.compensationAction(StepAction.DEACTIVATE_PUMP)
-						.targetTopic("fuel.saga.step.command")
+						.targetTopic(COMMAND_STEP)
 						.timeoutSeconds(60)
 						.compensable(true)
 						.asyncWait(false)
 						.build(),
 
 				SagaStepDefinition.builder()
-						.stepOrder(5)
+						.stepOrder(4)
 						.stepName(StepName.WAIT_PUMP_COMPLETE)
 						.forwardAction(StepAction.WAIT_PUMP_COMPLETE)
 						.compensationAction(StepAction.DEACTIVATE_PUMP)
-						.targetTopic("fuel.saga.step.command")
+						.targetTopic(COMMAND_STEP)
 						.timeoutSeconds(600)        // 10 phút chờ bơm
 						.compensable(true)
 						.asyncWait(true)            // Chờ external event
+						.build(),
+
+
+				SagaStepDefinition.builder()
+						.stepOrder(5)
+						.stepName(StepName.PROCESS_PAYMENT)
+						.forwardAction(StepAction.PROCESS_PAYMENT)
+						.compensationAction(StepAction.DEBIT_SUPPORT)
+						.targetTopic(COMMAND_STEP)
+						.timeoutSeconds(30)
+						.compensable(true)
+						.asyncWait(false)
 						.build(),
 
 				SagaStepDefinition.builder()
@@ -84,7 +86,7 @@ public class FuelPurchaseSagaDefinition implements SagaDefinition {
 						.stepName(StepName.UPDATE_INVENTORY)
 						.forwardAction(StepAction.UPDATE_INVENTORY)
 						.compensationAction(StepAction.ROLLBACK_INVENTORY)
-						.targetTopic("fuel.saga.step.command")
+						.targetTopic(COMMAND_STEP)
 						.timeoutSeconds(30)
 						.compensable(true)
 						.asyncWait(false)
@@ -95,7 +97,7 @@ public class FuelPurchaseSagaDefinition implements SagaDefinition {
 						.stepName(StepName.COMPLETE_ORDER)
 						.forwardAction(StepAction.COMPLETE_ORDER)
 						.compensationAction(StepAction.CANCEL_ORDER)
-						.targetTopic("fuel.saga.step.command")
+						.targetTopic(COMMAND_STEP)
 						.timeoutSeconds(30)
 						.compensable(true)
 						.asyncWait(false)
@@ -106,7 +108,7 @@ public class FuelPurchaseSagaDefinition implements SagaDefinition {
 						.stepName(StepName.SEND_NOTIFICATION)
 						.forwardAction(StepAction.SEND_NOTIFICATION)
 						.compensationAction(null)
-						.targetTopic("fuel.saga.step.command")
+						.targetTopic(COMMAND_STEP)
 						.timeoutSeconds(30)
 						.compensable(false)
 						.asyncWait(false)

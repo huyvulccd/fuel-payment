@@ -1,16 +1,19 @@
 package idea.fuel_payment.orchestrator_service.kafka.producer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import idea.fuel_payment.orchestrator_service.kafka.dto.SagaCompletedEvent;
+import idea.fuel_payment.orchestrator_service.kafka.dto.SagaStepCommand;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import idea.fuel_payment.orchestrator_service.kafka.dto.SagaStepCommand;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.CompletableFuture;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class SagaCommandProducer {
 
 	private final KafkaTemplate<String, Object> kafkaTemplate;
@@ -19,12 +22,12 @@ public class SagaCommandProducer {
 	private String sagaCompletedTopic;
 
 	public void sendCommand(String topic, SagaStepCommand command) {
-		String key = command.orderCode();
+		String key = command.getOrderCode();
 
 		log.info("Sending command: topic={}, key={}, saga={}, " +
-						"step={}, action={}",
-				topic, key, command.sagaId(),
-				command.stepOrder(), command.action());
+						"step={}, getAction={}",
+				topic, key, command.getSagaId(),
+				command.getStepOrder(), command.getAction());
 
 		CompletableFuture<SendResult<String, Object>> future =
 				kafkaTemplate.send(topic, key, command);
@@ -33,14 +36,14 @@ public class SagaCommandProducer {
 			if (ex != null) {
 				log.error("Failed to send command: saga={}, " +
 								"step={}, error={}",
-						command.sagaId(),
-						command.stepOrder(),
-						ex.message());
+						command.getSagaId(),
+						command.getStepOrder(),
+						ex.getMessage());
 			} else {
 				log.debug("Command sent successfully: " +
 								"saga={}, step={}, partition={}, offset={}",
-						command.sagaId(),
-						command.stepOrder(),
+						command.getSagaId(),
+						command.getStepOrder(),
 						result.getRecordMetadata().partition(),
 						result.getRecordMetadata().offset());
 			}

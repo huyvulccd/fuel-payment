@@ -12,7 +12,7 @@ public enum StepAction {
 
 	// Compensation actions
 	CANCEL_ORDER,
-	REFUND_PAYMENT,
+	DEBIT_SUPPORT,
 	DEACTIVATE_PUMP,
 	ROLLBACK_INVENTORY
 }
