@@ -1,6 +1,6 @@
 package idea.fuel_payment.gas_service.dto.fuel_price;
 
-import idea.fuel_payment.gas_service.domain.entity.FuelType;
+import idea.fuel_payment.gas_service.domain.enums.FuelType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

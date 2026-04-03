@@ -3,7 +3,7 @@ package idea.fuel_payment.gas_service.service;
 import idea.fuel_payment.gas_service.common.RedisTool;
 import idea.fuel_payment.gas_service.common.UtilityService;
 import idea.fuel_payment.gas_service.config.RedisConfig;
-import idea.fuel_payment.gas_service.domain.entity.FuelType;
+import idea.fuel_payment.gas_service.domain.enums.FuelType;
 import idea.fuel_payment.gas_service.dto.fuel_price.FuelPriceUpdateRequest;
 import idea.fuel_payment.gas_service.dto.query.FuelPricePro;
 import idea.fuel_payment.gas_service.domain.entity.FuelPrice;

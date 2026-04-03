@@ -1,7 +1,7 @@
 package idea.fuel_payment.gas_service.repository;
 
 import idea.fuel_payment.gas_service.domain.entity.FuelPrice;
-import idea.fuel_payment.gas_service.domain.entity.FuelType;
+import idea.fuel_payment.gas_service.domain.enums.FuelType;
 import idea.fuel_payment.gas_service.dto.query.FuelPricePro;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

@@ -1,7 +1,7 @@
 package idea.fuel_payment.gas_service.dto.fuel_price;
 
 import idea.fuel_payment.gas_service.domain.entity.FuelPrice;
-import idea.fuel_payment.gas_service.domain.entity.FuelType;
+import idea.fuel_payment.gas_service.domain.enums.FuelType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

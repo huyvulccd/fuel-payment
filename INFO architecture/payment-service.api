@@ -9,15 +9,17 @@
 """
 request {
     ownerId: Long,
-    amount: double
+    amount: BigDecimal,
+    topupMethod: String (BANK_TRANSFER | MOMO | VNPAY)
 }
 response {
-    transactionCode: string,
+    transactionCode: String,
     ownerId: Long,
-    amount: double,
-    status: string,
-    balanceBefore: double,
-    balanceAfter: double
+    amount: BigDecimal,
+    topupMethod: String,
+    status: String,
+    balanceBefore: BigDecimal,
+    balanceAfter: BigDecimal
 }
 """
 
@@ -26,15 +28,19 @@ response {
 """
 request {
     ownerId: Long,
-    amount: double
+    orderCode: String,
+    licensePlate: String,
+    amount: BigDecimal
 }
 response {
-    transactionCode: string,
+    transactionCode: String,
     ownerId: Long,
-    amount: double,
-    status: string,
-    balanceBefore: double,
-    balanceAfter: double
+    orderCode: String,
+    licensePlate: String,
+    amount: BigDecimal,
+    status: String,
+    balanceBefore: BigDecimal,
+    balanceAfter: BigDecimal
 }
 """
 
@@ -44,14 +50,19 @@ response {
 request {
     senderId: Long,
     receiverId: Long,
-    amount: double
+    amount: BigDecimal,
+    message: String (optional)
 }
 response {
-    transactionCode: string,
-    ownerId: Long,
-    amount: double,
-    status: string,
-    balanceBefore: double,
-    balanceAfter: double
+    transactionCode: String,
+    senderId: Long,
+    receiverId: Long,
+    amount: BigDecimal,
+    message: String,
+    status: String,
+    senderBalanceBefore: BigDecimal,
+    senderBalanceAfter: BigDecimal,
+    receiverBalanceBefore: BigDecimal,
+    receiverBalanceAfter: BigDecimal
 }
 """
