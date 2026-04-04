@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.NoSuchElementException;
 
 /**
- * Service xử lý nghiệp vụ tra cứu giao dịch.
+ * Service for handling transaction lookup business logic.
  *
  * @author payment-service
  * @version 2026/04/01
@@ -28,12 +28,12 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
 
     /**
-     * Lấy danh sách giao dịch theo ownerId có phân trang.
+     * Get list of transactions by ownerId with pagination.
      *
-     * @param ownerId ID chủ sở hữu
-     * @param limit số bản ghi mỗi trang
-     * @param offset vị trí bắt đầu
-     * @return danh sách giao dịch phân trang
+     * @param ownerId owner ID
+     * @param limit records per page
+     * @param offset starting position
+     * @return paginated list of transactions
      */
     public PageResponse<TransactionResponse> getTransactionsByOwnerId(
             final Long ownerId, final int limit, final int offset) {
@@ -52,11 +52,11 @@ public class TransactionService {
     }
 
     /**
-     * Lấy chi tiết giao dịch theo mã giao dịch.
+     * Get transaction details by transaction code.
      *
-     * @param transactionCode mã giao dịch
-     * @return thông tin giao dịch
-     * @throws NoSuchElementException nếu không tìm thấy
+     * @param transactionCode transaction code
+     * @return transaction information
+     * @throws NoSuchElementException if not found
      */
     public TransactionResponse getTransactionByCode(final String transactionCode) {
         Transaction transaction = transactionRepository.findByTransactionCode(transactionCode)

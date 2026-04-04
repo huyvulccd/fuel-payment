@@ -4,9 +4,9 @@ import idea.fuel_payment.gas_service.domain.enums.PumpStatus;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * Request cập nhật trạng thái trụ bơm.
+ * Fuel pump status update request.
  *
- * @param pumpStatus trạng thái mới
+ * @param pumpStatus new status
  * @author gas-service
  * @version 2026/04/03
  */

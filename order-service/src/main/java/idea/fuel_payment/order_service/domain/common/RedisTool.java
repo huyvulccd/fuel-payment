@@ -18,7 +18,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class RedisTool {
-	public static final String CURRENT_FUEL_PRICE = "fuel-prices::all-current";
+	public static final String CURRENT_FUEL_PRICE = "fuel-prices::all";
 
 	private final StringRedisTemplate redisTemplate;
 

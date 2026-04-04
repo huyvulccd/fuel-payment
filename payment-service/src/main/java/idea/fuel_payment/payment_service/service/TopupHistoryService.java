@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Objects;
 
 /**
- * Service xử lý nghiệp vụ nạp tiền.
+ * Service for handling top-up business logic.
  *
  * @author payment-service
  * @version 2026/04/01
@@ -29,11 +29,11 @@ public class TopupHistoryService {
     private final TopupHistoryRepository topupHistoryRepository;
 
     /**
-     * Đăng ký giao dịch nạp tiền.
-     * Tạo Transaction (kind=TOPUP) và TopupHistory trong cùng một transaction.
+     * Register top-up transaction.
+     * Create Transaction (kind=TOPUP) and TopupHistory in the same transaction.
      *
-     * @param request thông tin nạp tiền
-     * @return kết quả đăng ký nạp tiền
+     * @param request top-up information
+     * @return top-up registration result
      */
     @Transactional
     public TopupRegisterResponse registerTopup(final TopupRegisterRequest request) {
@@ -46,7 +46,7 @@ public class TopupHistoryService {
         TopupHistory.TopupMethod method = TopupHistory.TopupMethod.valueOf(
                 request.topupMethod().toUpperCase());
 
-        // 1. Tạo Transaction
+        // 1. Create Transaction
         Transaction transaction = Transaction.builder()
                 .ownerId(request.ownerId())
                 .transactionCode(transactionCode)
@@ -55,7 +55,7 @@ public class TopupHistoryService {
                 .build();
         transactionRepository.save(transaction);
 
-        // 2. Tạo TopupHistory
+        // 2. Create TopupHistory
         TopupHistory topupHistory = TopupHistory.builder()
                 .transactionCode(transactionCode)
                 .ownerId(request.ownerId())

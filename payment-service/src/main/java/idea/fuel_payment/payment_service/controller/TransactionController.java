@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Controller tra cứu giao dịch.
+ * Controller for transaction lookups.
  *
  * @author payment-service
  * @version 2026/04/01
@@ -24,12 +24,12 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     /**
-     * Lấy danh sách giao dịch theo ownerId có phân trang.
+     * Get list of transactions by ownerId with pagination.
      *
-     * @param ownerId ID chủ sở hữu
-     * @param limit số bản ghi mỗi trang (mặc định 20)
-     * @param offset vị trí bắt đầu (mặc định 0)
-     * @return danh sách giao dịch phân trang
+     * @param ownerId owner ID
+     * @param limit records per page (default 20)
+     * @param offset starting position (default 0)
+     * @return paginated list of transactions
      */
     @GetMapping
     public PageResponse<TransactionResponse> getTransactions(
@@ -40,10 +40,10 @@ public class TransactionController {
     }
 
     /**
-     * Lấy chi tiết giao dịch theo mã giao dịch.
+     * Get transaction details by transaction code.
      *
-     * @param transactionCode mã giao dịch
-     * @return thông tin giao dịch
+     * @param transactionCode transaction code
+     * @return transaction information
      */
     @GetMapping("/{transactionCode}")
     public TransactionResponse getTransaction(

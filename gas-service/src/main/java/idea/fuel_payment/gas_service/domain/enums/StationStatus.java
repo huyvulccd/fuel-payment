@@ -1,7 +1,7 @@
 package idea.fuel_payment.gas_service.domain.enums;
 
 /**
- * Trạng thái hoạt động của trạm xăng.
+ * Operating status of the gas station.
  *
  * @author gas-service
  * @version 2026/04/03

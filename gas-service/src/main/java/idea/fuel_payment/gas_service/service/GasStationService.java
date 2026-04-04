@@ -1,6 +1,7 @@
 package idea.fuel_payment.gas_service.service;
 
 import idea.fuel_payment.gas_service.domain.entity.GasStation;
+import idea.fuel_payment.gas_service.dto.gas_station.GasStationCreateRequest;
 import idea.fuel_payment.gas_service.dto.gas_station.GasStationResponse;
 import idea.fuel_payment.gas_service.dto.gas_station.GasStationUpdateRequest;
 import idea.fuel_payment.gas_service.repository.GasStationRepository;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * Service xử lý nghiệp vụ trạm xăng.
+ * Service for handling gas station business logic.
  *
  * @author gas-service
  * @version 2026/04/03
@@ -26,9 +27,9 @@ public class GasStationService {
     private final GasStationRepository gasStationRepository;
 
     /**
-     * Lấy danh sách tất cả trạm xăng.
+     * Get list of all gas stations.
      *
-     * @return danh sách trạm xăng
+     * @return list of gas stations
      */
     @Transactional(readOnly = true)
     public List<GasStationResponse> getAllStations() {
@@ -38,11 +39,11 @@ public class GasStationService {
     }
 
     /**
-     * Lấy thông tin trạm xăng theo ID.
+     * Get gas station information by ID.
      *
-     * @param id ID trạm xăng
-     * @return thông tin trạm xăng
-     * @throws NoSuchElementException nếu không tìm thấy
+     * @param id gas station ID
+     * @return gas station information
+     * @throws NoSuchElementException if not found
      */
     @Transactional(readOnly = true)
     public GasStationResponse getStationById(final Long id) {
@@ -53,12 +54,12 @@ public class GasStationService {
     }
 
     /**
-     * Cập nhật trạng thái trạm xăng.
+     * Update gas station status.
      *
-     * @param id ID trạm xăng
-     * @param request thông tin cập nhật
-     * @return thông tin trạm xăng sau cập nhật
-     * @throws NoSuchElementException nếu không tìm thấy
+     * @param id gas station ID
+     * @param request update information
+     * @return gas station information after update
+     * @throws NoSuchElementException if not found
      */
     @Transactional
     public GasStationResponse updateStation(final Long id, final GasStationUpdateRequest request) {
@@ -69,6 +70,33 @@ public class GasStationService {
         station.setStatus(request.status());
         GasStation saved = gasStationRepository.save(station);
         log.info("Updated gas station id={} status={}", id, request.status());
+
+        return mapToResponse(saved);
+    }
+
+    /**
+     * Create new gas station.
+     *
+     * @param request new gas station information
+     * @return newly created gas station information
+     * @throws IllegalArgumentException if station code already exists
+     */
+    @Transactional
+    public GasStationResponse createStation(final GasStationCreateRequest request) {
+        gasStationRepository.findByStationCode(request.stationCode())
+                .ifPresent(existing -> {
+                    throw new IllegalArgumentException(
+                            "Station code already exists: " + request.stationCode());
+                });
+
+        GasStation station = GasStation.builder()
+                .stationCode(request.stationCode())
+                .stationName(request.stationName())
+                .build();
+
+        GasStation saved = gasStationRepository.save(station);
+        log.info("Created gas station code={} name={}",
+                saved.getStationCode(), saved.getStationName());
 
         return mapToResponse(saved);
     }

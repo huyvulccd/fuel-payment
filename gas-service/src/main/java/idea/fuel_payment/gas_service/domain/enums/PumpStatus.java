@@ -1,7 +1,7 @@
 package idea.fuel_payment.gas_service.domain.enums;
 
 /**
- * Trạng thái hoạt động của trụ bơm.
+ * Operating status of the fuel pump.
  *
  * @author gas-service
  * @version 2026/04/03

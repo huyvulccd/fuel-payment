@@ -8,15 +8,15 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 /**
- * Request đăng ký phiên bơm xăng mới.
+ * New pump session registration request.
  *
- * @param pumpId ID trụ bơm
- * @param orderCode mã đơn hàng
- * @param licensePlate biển số xe
- * @param fuelType loại nhiên liệu
- * @param quantityLiters số lít bơm
- * @param unitPrice đơn giá
- * @param totalAmount tổng tiền
+ * @param pumpId fuel pump ID
+ * @param orderCode order code
+ * @param licensePlate license plate
+ * @param fuelType fuel type
+ * @param quantityLiters liters pumped
+ * @param unitPrice unit price
+ * @param totalAmount total amount
  * @author gas-service
  * @version 2026/04/03
  */

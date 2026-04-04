@@ -6,10 +6,10 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 /**
- * Request cập nhật trạng thái phiên bơm.
+ * Pump session status update request.
  *
- * @param sessionStatus trạng thái mới
- * @param completedAt thời gian hoàn thành (tuỳ chọn)
+ * @param sessionStatus new status
+ * @param completedAt completion time (optional)
  * @author gas-service
  * @version 2026/04/03
  */

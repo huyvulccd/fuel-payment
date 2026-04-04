@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Controller đăng ký chuyển tiền.
+ * Controller for transfer registration.
  *
  * @author payment-service
  * @version 2026/04/01
@@ -24,10 +24,10 @@ public class TransferHistoryController {
     private final TransferHistoryService transferHistoryService;
 
     /**
-     * Đăng ký giao dịch chuyển tiền.
+     * Register transfer transaction.
      *
-     * @param request thông tin chuyển tiền
-     * @return kết quả đăng ký
+     * @param request transfer information
+     * @return registration result
      */
     @PostMapping("/register")
     public TransferRegisterResponse registerTransfer(

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 /**
- * Repository cho bảng pump_sessions.
+ * Repository for pump_sessions table.
  *
  * @author gas-service
  * @version 2026/04/03
@@ -16,10 +16,10 @@ import java.util.Optional;
 public interface PumpSessionRepository extends JpaRepository<PumpSession, Long> {
 
     /**
-     * Tìm phiên bơm theo mã đơn hàng.
+     * Find pump session by order code.
      *
-     * @param orderCode mã đơn hàng
-     * @return Optional chứa PumpSession nếu tìm thấy
+     * @param orderCode order code
+     * @return Optional containing PumpSession if found
      */
     Optional<PumpSession> findByOrderCode(String orderCode);
 }

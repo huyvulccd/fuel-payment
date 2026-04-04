@@ -117,6 +117,12 @@ public abstract class UtilityService {
 			return null;
 		}
 
+		if (o instanceof Optional<?> opt) {
+			if (opt.isEmpty())
+				return null;
+			o = opt.get();
+		}
+
 		if (clazz.isInstance(o)) {
 			return (T) o;
 		}
@@ -156,15 +162,5 @@ public abstract class UtilityService {
 		throw new IllegalArgumentException(
 				"Unsupported conversion from " + o.getClass() + " to " + clazz
 		);
-	}
-
-	protected <T> T getValue(List<Map<String, Object>> list, String keyField, @NonNull String strCompare, String valueField, Class<T> clazz) {
-		for (Map<String, Object> map : list) {
-			if (strCompare.equals(map.get(keyField).toString())) {
-				Object o = map.get(valueField);
-				return getValue(o, clazz);
-			}
-		}
-		return null;
 	}
 }

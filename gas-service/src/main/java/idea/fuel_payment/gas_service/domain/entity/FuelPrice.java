@@ -1,15 +1,7 @@
 package idea.fuel_payment.gas_service.domain.entity;
 
 import idea.fuel_payment.gas_service.domain.enums.FuelType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Index;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,7 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Entity giá nhiên liệu.
+ * Entity describe fuel prices.
  *
  * @author gas-service
  * @version 2026/04/03

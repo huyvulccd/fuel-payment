@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
- * Repository cho bảng fuel_pumps.
+ * Repository for fuel_pumps table.
  *
  * @author gas-service
  * @version 2026/04/03
@@ -16,10 +16,10 @@ import java.util.List;
 public interface FuelPumpRepository extends JpaRepository<FuelPump, Long> {
 
     /**
-     * Tìm danh sách trụ bơm theo trạm xăng.
+     * Find list of fuel pumps by gas station.
      *
-     * @param stationId ID trạm xăng
-     * @return danh sách trụ bơm
+     * @param stationId gas station ID
+     * @return list of fuel pumps
      */
     List<FuelPump> findByStationId(Long stationId);
 }

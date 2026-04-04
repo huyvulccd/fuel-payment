@@ -18,7 +18,7 @@ public class FuelOrderController {
     private final FuelOrderService fuelOrderService;
 
     @GetMapping
-    public List<FuelOrderResponse> getFuelOrdersByOwnerId(@RequestParam("owner_id") Long ownerId) {
+    public List<FuelOrderResponse> getFuelOrdersByOwnerId(@RequestParam("ownerId") Long ownerId) {
         return fuelOrderService.getFuelOrdersByOwnerId(ownerId);
     }
 

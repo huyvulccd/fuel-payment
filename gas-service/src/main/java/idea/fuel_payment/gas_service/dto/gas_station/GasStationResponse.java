@@ -5,13 +5,13 @@ import idea.fuel_payment.gas_service.domain.enums.StationStatus;
 import java.time.LocalDateTime;
 
 /**
- * Response thông tin trạm xăng.
+ * Gas station information response.
  *
- * @param id ID trạm
- * @param stationCode mã trạm
- * @param stationName tên trạm
- * @param status trạng thái hoạt động
- * @param createdAt thời gian tạo
+ * @param id station ID
+ * @param stationCode station code
+ * @param stationName station name
+ * @param status operating status
+ * @param createdAt creation time
  * @author gas-service
  * @version 2026/04/03
  */

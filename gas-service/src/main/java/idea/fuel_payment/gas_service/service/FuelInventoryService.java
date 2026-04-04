@@ -1,19 +1,20 @@
 package idea.fuel_payment.gas_service.service;
 
 import idea.fuel_payment.gas_service.domain.entity.FuelInventory;
+import idea.fuel_payment.gas_service.dto.fuel_inventory.FuelInventoryAddRequest;
 import idea.fuel_payment.gas_service.dto.fuel_inventory.FuelInventoryResponse;
-import idea.fuel_payment.gas_service.dto.fuel_inventory.FuelInventoryUpdateRequest;
 import idea.fuel_payment.gas_service.repository.FuelInventoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * Service xử lý nghiệp vụ tồn kho nhiên liệu.
+ * Service for handling fuel inventory business logic.
  *
  * @author gas-service
  * @version 2026/04/03
@@ -26,10 +27,10 @@ public class FuelInventoryService {
     private final FuelInventoryRepository fuelInventoryRepository;
 
     /**
-     * Lấy danh sách tồn kho nhiên liệu theo trạm xăng.
+     * Get list of fuel inventory by gas station.
      *
-     * @param stationId ID trạm xăng
-     * @return danh sách tồn kho
+     * @param stationId gas station ID
+     * @return list of inventory
      */
     @Transactional(readOnly = true)
     public List<FuelInventoryResponse> getInventoryByStationId(final Long stationId) {
@@ -39,22 +40,30 @@ public class FuelInventoryService {
     }
 
     /**
-     * Cập nhật thể tích tồn kho nhiên liệu.
+     * Add fuel inventory volume.
+     * Finds the inventory record by station and fuel type, and increments the volume.
+     * If the record does not exist, a new one is created.
      *
-     * @param id ID bản ghi tồn kho
-     * @param request thông tin cập nhật
-     * @return thông tin tồn kho sau cập nhật
-     * @throws NoSuchElementException nếu không tìm thấy
+     * @param request addition information
+     * @return inventory information after addition
      */
     @Transactional
-    public FuelInventoryResponse updateInventory(final Long id, final FuelInventoryUpdateRequest request) {
-        FuelInventory inventory = fuelInventoryRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException(
-                        "Fuel inventory not found: " + id));
+    public FuelInventoryResponse addFuelToInventory(final FuelInventoryAddRequest request) {
+        FuelInventory inventory = fuelInventoryRepository.findByStationIdAndFuelType(
+                        request.stationId(), request.fuelType())
+                .orElseGet(() -> FuelInventory.builder()
+                        .stationId(request.stationId())
+                        .fuelType(request.fuelType())
+                        .currentVolume(BigDecimal.ZERO)
+                        .build());
 
-        inventory.setCurrentVolume(request.currentVolume());
+        BigDecimal oldVolume = inventory.getCurrentVolume();
+        BigDecimal newVolume = oldVolume.add(request.addedVolume());
+        inventory.setCurrentVolume(newVolume);
+        
         FuelInventory saved = fuelInventoryRepository.save(inventory);
-        log.info("Updated fuel inventory id={} volume={}", id, request.currentVolume());
+        log.info("Added fuel inventory station={} type={} old={} added={} current={}", 
+                request.stationId(), request.fuelType(), oldVolume, request.addedVolume(), newVolume);
 
         return mapToResponse(saved);
     }

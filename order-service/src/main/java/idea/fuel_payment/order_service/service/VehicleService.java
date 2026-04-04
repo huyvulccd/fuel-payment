@@ -101,8 +101,7 @@ import java.util.Optional;
         totalEnergyRepository.save(energy);
 
         // Calculate minBalance adjustment (only for the new vehicle)
-        List<Map<String, Object>> prices = redisTool.getAsMaps(RedisTool.CURRENT_FUEL_PRICE);
-        BigDecimal currentPrice = toBigDecimal(getValue(prices, "fuelType", fuelType, "price", BigDecimal.class));
+        BigDecimal currentPrice = getValue(redisTool.hGet(RedisTool.CURRENT_FUEL_PRICE, fuelType), BigDecimal.class);
         BigDecimal minBalanceToAdd = capacity.multiply(currentPrice);
 
         owner.setMinBalance(owner.getMinBalance().add(minBalanceToAdd));

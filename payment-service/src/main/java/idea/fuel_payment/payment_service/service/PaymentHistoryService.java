@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Objects;
 
 /**
- * Service xử lý nghiệp vụ thanh toán đơn hàng.
+ * Service for handling order payment business logic.
  *
  * @author payment-service
  * @version 2026/04/01
@@ -29,11 +29,11 @@ public class PaymentHistoryService {
     private final PaymentHistoryRepository paymentHistoryRepository;
 
     /**
-     * Đăng ký giao dịch thanh toán đơn hàng.
-     * Tạo Transaction (kind=PAYMENT) và PaymentHistory trong cùng một transaction.
+     * Register order payment transaction.
+     * Create Transaction (kind=PAYMENT) and PaymentHistory in the same transaction.
      *
-     * @param request thông tin thanh toán
-     * @return kết quả đăng ký thanh toán
+     * @param request payment information
+     * @return payment registration result
      */
     @Transactional
     public PaymentRegisterResponse registerPayment(final PaymentRegisterRequest request) {
@@ -44,7 +44,7 @@ public class PaymentHistoryService {
 
         String transactionCode = TransactionCodeGenerator.generate();
 
-        // 1. Tạo Transaction
+        // 1. Create Transaction
         Transaction transaction = Transaction.builder()
                 .ownerId(request.ownerId())
                 .transactionCode(transactionCode)
@@ -53,7 +53,7 @@ public class PaymentHistoryService {
                 .build();
         transactionRepository.save(transaction);
 
-        // 2. Tạo PaymentHistory
+        // 2. Create PaymentHistory
         PaymentHistory paymentHistory = PaymentHistory.builder()
                 .transactionCode(transactionCode)
                 .ownerId(request.ownerId())

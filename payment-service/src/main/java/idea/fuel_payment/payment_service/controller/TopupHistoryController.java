@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Controller đăng ký nạp tiền.
+ * Controller for top-up registration.
  *
  * @author payment-service
  * @version 2026/04/01
@@ -24,10 +24,10 @@ public class TopupHistoryController {
     private final TopupHistoryService topupHistoryService;
 
     /**
-     * Đăng ký giao dịch nạp tiền.
+     * Register top-up transaction.
      *
-     * @param request thông tin nạp tiền
-     * @return kết quả đăng ký
+     * @param request top-up information
+     * @return registration result
      */
     @PostMapping("/register")
     public TopupRegisterResponse registerTopup(

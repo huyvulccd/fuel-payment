@@ -21,7 +21,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 /**
- * Entity trụ bơm xăng.
+ * Fuel pump entity.
  *
  * @author gas-service
  * @version 2026/04/03

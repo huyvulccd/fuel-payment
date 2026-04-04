@@ -1,7 +1,7 @@
 package idea.fuel_payment.gas_service.domain.enums;
 
 /**
- * Trạng thái của phiên bơm xăng.
+ * Status of the pump session.
  *
  * @author gas-service
  * @version 2026/04/03

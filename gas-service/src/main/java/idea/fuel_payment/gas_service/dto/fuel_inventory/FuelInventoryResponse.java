@@ -6,13 +6,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Response thông tin tồn kho nhiên liệu.
+ * Fuel inventory information response.
  *
- * @param id ID bản ghi
- * @param stationId ID trạm xăng
- * @param fuelType loại nhiên liệu
- * @param currentVolume thể tích hiện tại (lít)
- * @param updatedAt thời gian cập nhật
+ * @param id record ID
+ * @param stationId gas station ID
+ * @param fuelType fuel type
+ * @param currentVolume current volume (liters)
+ * @param updatedAt update time
  * @author gas-service
  * @version 2026/04/03
  */

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Controller đăng ký thanh toán đơn hàng.
+ * Controller for order payment registration.
  *
  * @author payment-service
  * @version 2026/04/01
@@ -24,10 +24,10 @@ public class PaymentHistoryController {
     private final PaymentHistoryService paymentHistoryService;
 
     /**
-     * Đăng ký giao dịch thanh toán đơn hàng.
+     * Register order payment transaction.
      *
-     * @param request thông tin thanh toán
-     * @return kết quả đăng ký
+     * @param request payment information
+     * @return registration result
      */
     @PostMapping("/register")
     public PaymentRegisterResponse registerPayment(

@@ -21,7 +21,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Entity phiên bơm xăng (lịch sử bơm từ IoT sensor).
+ * Pump session entity (pumping history from IoT sensor).
  *
  * @author gas-service
  * @version 2026/04/03

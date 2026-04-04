@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 /**
  * Common utility wrapping StringRedisTemplate.
- * Cung cấp các thao tác Redis chuẩn hóa cho toàn bộ gas-service.
+ * Provides standardized Redis operations for the entire gas-service.
  */
 @Slf4j
 @Component
@@ -34,7 +34,7 @@ public class RedisTool {
         set(key, toJson(value));
     }
 
-    /** Ghi value (không TTL). */
+    /** Write value (no TTL). */
     public void set(String key, String value) {
         redisTemplate.opsForValue().set(key, value);
         log.debug("[Redis] SET key={} value={}", key, value);
@@ -44,20 +44,20 @@ public class RedisTool {
         set(key, toJson(value));
     }
 
-    /** Ghi value với TTL. */
+    /** Write value with TTL. */
     public void set(String key, String value, Duration ttl) {
         redisTemplate.opsForValue().set(key, value, ttl);
         log.debug("[Redis] SET key={} value={} ttl={}", key, value, ttl);
     }
 
-    /** Đọc value. Trả về Optional.empty() nếu key không tồn tại. */
+    /** Read value. Returns Optional.empty() if key does not exist. */
     public Optional<String> get(String key) {
         String value = redisTemplate.opsForValue().get(key);
         log.debug("[Redis] GET key={} -> {}", key, value);
         return Optional.ofNullable(value);
     }
 
-    /** Xóa key. */
+    /** Delete key. */
     public void delete(String key) {
         redisTemplate.delete(key);
         log.debug("[Redis] DEL key={}", key);
@@ -66,8 +66,8 @@ public class RedisTool {
     // ───────── DISTRIBUTED LOCK (SET NX EX) ─────────
 
     /**
-     * Cố gắng acquire lock.
-     * @return true nếu lock được acquire thành công (key chưa tồn tại).
+     * Try to acquire lock.
+     * @return true if lock is acquired successfully (key does not exist).
      */
     public boolean tryLock(String lockKey, String requestId, Duration ttl) {
         Boolean acquired = redisTemplate.opsForValue().setIfAbsent(lockKey, requestId, ttl);
@@ -76,7 +76,7 @@ public class RedisTool {
         return result;
     }
 
-    /** Release lock — chỉ xóa nếu value khớp (tránh xóa nhầm lock của request khác). */
+    /** Release lock — only if value matches (avoids accidental deletion of another request's lock). */
     public void releaseLock(String lockKey, String requestId) {
         String current = redisTemplate.opsForValue().get(lockKey);
         if (requestId.equals(current)) {

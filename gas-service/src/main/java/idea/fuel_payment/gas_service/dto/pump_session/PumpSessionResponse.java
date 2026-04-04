@@ -7,19 +7,19 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Response thông tin phiên bơm xăng.
+ * Pump session information response.
  *
- * @param sessionCode mã phiên bơm
- * @param pumpId ID trụ bơm
- * @param orderCode mã đơn hàng
- * @param licensePlate biển số xe
- * @param fuelType loại nhiên liệu
- * @param quantityLiters số lít bơm
- * @param unitPrice đơn giá
- * @param totalAmount tổng tiền
- * @param sessionStatus trạng thái phiên bơm
- * @param startedAt thời gian bắt đầu
- * @param completedAt thời gian hoàn thành
+ * @param sessionCode session code
+ * @param pumpId fuel pump ID
+ * @param orderCode order code
+ * @param licensePlate license plate
+ * @param fuelType fuel type
+ * @param quantityLiters liters pumped
+ * @param unitPrice unit price
+ * @param totalAmount total amount
+ * @param sessionStatus session status
+ * @param startedAt start time
+ * @param completedAt completion time
  * @author gas-service
  * @version 2026/04/03
  */

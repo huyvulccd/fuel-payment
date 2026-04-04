@@ -17,7 +17,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 
 /**
- * Service xử lý nghiệp vụ phiên bơm xăng.
+ * Service for handling pump session business logic.
  *
  * @author gas-service
  * @version 2026/04/03
@@ -30,11 +30,11 @@ public class PumpSessionService {
     private final PumpSessionRepository pumpSessionRepository;
 
     /**
-     * Lấy thông tin phiên bơm theo mã đơn hàng.
+     * Get pump session information by order code.
      *
-     * @param orderCode mã đơn hàng
-     * @return thông tin phiên bơm
-     * @throws NoSuchElementException nếu không tìm thấy
+     * @param orderCode order code
+     * @return pump session information
+     * @throws NoSuchElementException if not found
      */
     @Transactional(readOnly = true)
     public PumpSessionResponse getSessionByOrderCode(final String orderCode) {
@@ -45,12 +45,12 @@ public class PumpSessionService {
     }
 
     /**
-     * Cập nhật trạng thái phiên bơm.
+     * Update pump session status.
      *
-     * @param id ID phiên bơm
-     * @param request thông tin cập nhật
-     * @return thông tin phiên bơm sau cập nhật
-     * @throws NoSuchElementException nếu không tìm thấy
+     * @param id pump session ID
+     * @param request update information
+     * @return pump session information after update
+     * @throws NoSuchElementException if not found
      */
     @Transactional
     public PumpSessionResponse updateSession(final Long id, final PumpSessionUpdateRequest request) {
@@ -72,11 +72,11 @@ public class PumpSessionService {
     }
 
     /**
-     * Đăng ký phiên bơm mới.
-     * Tự động sinh sessionCode duy nhất và gán trạng thái STARTED.
+     * Register a new pump session.
+     * Automatically generate a unique sessionCode and set status to STARTED.
      *
-     * @param request thông tin đăng ký phiên bơm
-     * @return thông tin phiên bơm đã đăng ký
+     * @param request pump session registration information
+     * @return registered pump session information
      */
     @Transactional
     public PumpSessionResponse registerSession(final PumpSessionRegisterRequest request) {

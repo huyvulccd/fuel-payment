@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Objects;
 
 /**
- * Service xử lý nghiệp vụ chuyển tiền.
+ * Service for handling money transfer business logic.
  *
  * @author payment-service
  * @version 2026/04/01
@@ -29,12 +29,12 @@ public class TransferHistoryService {
     private final TransferHistoryRepository transferHistoryRepository;
 
     /**
-     * Đăng ký giao dịch chuyển tiền.
-     * Tạo Transaction (kind=TRANSFER) và TransferHistory trong cùng một transaction.
+     * Register money transfer transaction.
+     * Create Transaction (kind=TRANSFER) and TransferHistory in the same transaction.
      *
-     * @param request thông tin chuyển tiền
-     * @return kết quả đăng ký chuyển tiền
-     * @throws IllegalArgumentException nếu senderId trùng receiverId
+     * @param request transfer information
+     * @return transfer registration result
+     * @throws IllegalArgumentException if senderId is same as receiverId
      */
     @Transactional
     public TransferRegisterResponse registerTransfer(final TransferRegisterRequest request) {
@@ -48,7 +48,7 @@ public class TransferHistoryService {
 
         String transactionCode = TransactionCodeGenerator.generate();
 
-        // 1. Tạo Transaction (dùng senderId làm ownerId)
+        // 1. Create Transaction (use senderId as ownerId)
         Transaction transaction = Transaction.builder()
                 .ownerId(request.senderId())
                 .transactionCode(transactionCode)
@@ -57,7 +57,7 @@ public class TransferHistoryService {
                 .build();
         transactionRepository.save(transaction);
 
-        // 2. Tạo TransferHistory
+        // 2. Create TransferHistory
         TransferHistory transferHistory = TransferHistory.builder()
                 .transactionCode(transactionCode)
                 .senderId(request.senderId())

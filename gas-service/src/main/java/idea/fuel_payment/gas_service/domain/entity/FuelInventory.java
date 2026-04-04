@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Entity tồn kho nhiên liệu theo trạm.
+ * Fuel inventory by station entity.
  *
  * @author gas-service
  * @version 2026/04/03

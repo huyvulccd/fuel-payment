@@ -18,7 +18,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 /**
- * Entity trạm xăng.
+ * Gas station entity.
  *
  * @author gas-service
  * @version 2026/04/03

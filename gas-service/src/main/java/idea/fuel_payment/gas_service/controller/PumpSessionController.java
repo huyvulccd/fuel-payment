@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Controller quản lý phiên bơm xăng.
+ * Controller for managing pump sessions.
  *
  * @author gas-service
  * @version 2026/04/03
@@ -29,10 +29,10 @@ public class PumpSessionController {
     private final PumpSessionService pumpSessionService;
 
     /**
-     * Lấy thông tin phiên bơm theo mã đơn hàng.
+     * Get pump session information by order code.
      *
-     * @param orderCode mã đơn hàng
-     * @return thông tin phiên bơm
+     * @param orderCode order code
+     * @return pump session information
      */
     @GetMapping("/{orderCode}")
     public ResponseEntity<PumpSessionResponse> getSessionByOrderCode(
@@ -41,11 +41,11 @@ public class PumpSessionController {
     }
 
     /**
-     * Cập nhật trạng thái phiên bơm.
+     * Update pump session status.
      *
-     * @param id ID phiên bơm
-     * @param request thông tin cập nhật
-     * @return thông tin phiên bơm sau cập nhật
+     * @param id pump session ID
+     * @param request update information
+     * @return pump session information after update
      */
     @PutMapping("/{id}")
     public ResponseEntity<PumpSessionResponse> updateSession(
@@ -55,10 +55,10 @@ public class PumpSessionController {
     }
 
     /**
-     * Đăng ký phiên bơm mới.
+     * Register a new pump session.
      *
-     * @param request thông tin đăng ký
-     * @return thông tin phiên bơm đã đăng ký
+     * @param request registration information
+     * @return registered pump session information
      */
     @PostMapping("/register")
     public ResponseEntity<PumpSessionResponse> registerSession(

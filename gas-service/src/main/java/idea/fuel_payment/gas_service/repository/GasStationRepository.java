@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 /**
- * Repository cho bảng gas_stations.
+ * Repository for gas_stations table.
  *
  * @author gas-service
  * @version 2026/04/03
@@ -16,10 +16,10 @@ import java.util.Optional;
 public interface GasStationRepository extends JpaRepository<GasStation, Long> {
 
     /**
-     * Tìm trạm xăng theo mã trạm.
+     * Find gas station by station code.
      *
-     * @param stationCode mã trạm xăng
-     * @return Optional chứa GasStation nếu tìm thấy
+     * @param stationCode gas station code
+     * @return Optional containing GasStation if found
      */
     Optional<GasStation> findByStationCode(String stationCode);
 }

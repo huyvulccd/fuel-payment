@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 /**
- * Utility sinh mã phiên bơm xăng duy nhất.
+ * Utility for generating unique pump session codes.
  *
  * @author gas-service
  * @version 2026/04/03
@@ -19,9 +19,9 @@ public final class SessionCodeGenerator {
     }
 
     /**
-     * Sinh mã phiên bơm dạng SES-{yyyyMMddHHmmss}-{randomHex8}.
+     * Generate session code in the format SES-{yyyyMMddHHmmss}-{randomHex8}.
      *
-     * @return mã phiên bơm duy nhất
+     * @return unique pump session code
      */
     public static String generate() {
         String timestamp = LocalDateTime.now().format(FORMATTER);

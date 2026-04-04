@@ -1,14 +1,14 @@
 package idea.fuel_payment.gas_service.controller;
 
+import idea.fuel_payment.gas_service.dto.fuel_inventory.FuelInventoryAddRequest;
 import idea.fuel_payment.gas_service.dto.fuel_inventory.FuelInventoryResponse;
-import idea.fuel_payment.gas_service.dto.fuel_inventory.FuelInventoryUpdateRequest;
 import idea.fuel_payment.gas_service.service.FuelInventoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * Controller quản lý tồn kho nhiên liệu.
+ * Controller for managing fuel inventory.
  *
  * @author gas-service
  * @version 2026/04/03
@@ -29,10 +29,10 @@ public class FuelInventoryController {
     private final FuelInventoryService fuelInventoryService;
 
     /**
-     * Lấy danh sách tồn kho nhiên liệu theo trạm xăng.
+     * Get list of fuel inventory by gas station.
      *
-     * @param stationId ID trạm xăng
-     * @return danh sách tồn kho
+     * @param stationId gas station ID
+     * @return list of inventory
      */
     @GetMapping("/{stationId}")
     public ResponseEntity<List<FuelInventoryResponse>> getInventoryByStationId(
@@ -41,16 +41,15 @@ public class FuelInventoryController {
     }
 
     /**
-     * Cập nhật thể tích tồn kho nhiên liệu.
+     * Refill fuel inventory.
+     * Finds the inventory record by station and fuel type, and increments the volume.
      *
-     * @param id ID bản ghi tồn kho
-     * @param request thông tin cập nhật
-     * @return thông tin tồn kho sau cập nhật
+     * @param request refill information
+     * @return inventory information after refill
      */
-    @PutMapping("/{id}")
-    public ResponseEntity<FuelInventoryResponse> updateInventory(
-            @PathVariable final Long id,
-            @Valid @RequestBody final FuelInventoryUpdateRequest request) {
-        return ResponseEntity.ok(fuelInventoryService.updateInventory(id, request));
+    @PostMapping("/refill")
+    public ResponseEntity<FuelInventoryResponse> refillInventory(
+            @Valid @RequestBody final FuelInventoryAddRequest request) {
+        return ResponseEntity.ok(fuelInventoryService.addFuelToInventory(request));
     }
 }
