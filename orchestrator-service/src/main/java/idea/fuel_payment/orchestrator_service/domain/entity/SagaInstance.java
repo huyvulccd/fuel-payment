@@ -58,7 +58,7 @@ public class SagaInstance {
 	private SagaStatus sagaStatus = SagaStatus.STARTED;
 
 	@JdbcTypeCode(SqlTypes.JSON)
-	@Column(name = "payload", columnDefinition = "jsonb")
+	@Column(name = "payload")
 	private Map<String, Object> payload;
 
 	@Column(name = "error_message", columnDefinition = "TEXT")

@@ -1,5 +1,6 @@
 package idea.fuel_payment.gas_service.controller;
 
+import idea.fuel_payment.gas_service.domain.enums.FuelType;
 import idea.fuel_payment.gas_service.dto.fuel_pump.FuelPumpCreateRequest;
 import idea.fuel_payment.gas_service.dto.fuel_pump.FuelPumpResponse;
 import idea.fuel_payment.gas_service.dto.fuel_pump.FuelPumpUpdateRequest;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -40,6 +42,20 @@ public class FuelPumpController {
     public ResponseEntity<List<FuelPumpResponse>> getPumpsByStationId(
             @PathVariable final Long stationId) {
         return ResponseEntity.ok(fuelPumpService.getPumpsByStationId(stationId));
+    }
+
+    /**
+     * Find the first available pump at a station for a given fuel type.
+     *
+     * @param stationId gas station ID
+     * @param fuelType  type of fuel
+     * @return available pump information
+     */
+    @GetMapping("/available")
+    public ResponseEntity<FuelPumpResponse> findAvailablePump(
+            @RequestParam("stationId") final Long stationId,
+            @RequestParam("fuelType") final FuelType fuelType) {
+        return ResponseEntity.ok(fuelPumpService.findAvailablePump(stationId, fuelType));
     }
 
     /**

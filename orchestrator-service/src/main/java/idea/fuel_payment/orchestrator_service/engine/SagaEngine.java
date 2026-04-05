@@ -64,7 +64,7 @@ public class SagaEngine {
     // =====================================================
     @Transactional
     public void startSaga(OrderCreatedEvent event) {
-        String orderCode = event.getOrderCode();
+        String orderCode = event.orderCode();
 
         log.info("Starting SAGA for order: {}", orderCode);
         MDC.put("orderCode", orderCode);
@@ -451,12 +451,12 @@ public class SagaEngine {
     private Map<String, Object> buildInitialPayload(
             OrderCreatedEvent event) {
         Map<String, Object> payload = new HashMap<>();
-        payload.put("orderCode", event.getOrderCode());
-        payload.put("licensePlate", event.getLicensePlate());
-        payload.put("ownerId", event.getOwnerId());
-        payload.put("stationId", event.getStationId());
-        payload.put("pumpId", event.getPumpId());
-        payload.put("fuelType", event.getFuelType());
+        payload.put("orderCode", event.orderCode());
+        payload.put("licensePlate", event.licensePlate());
+        payload.put("ownerId", event.ownerId());
+        payload.put("stationId", event.stationId());
+        payload.put("pumpId", event.pumpId());
+        payload.put("fuelType", event.fuelType());
         return payload;
     }
 }

@@ -3,16 +3,7 @@ package idea.fuel_payment.orchestrator_service.domain.entity;
 import idea.fuel_payment.orchestrator_service.domain.enums.StepAction;
 import idea.fuel_payment.orchestrator_service.domain.enums.StepName;
 import idea.fuel_payment.orchestrator_service.domain.enums.StepStatus;
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,6 +20,7 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 public class SagaStepLog {
 
 	@Id
@@ -55,11 +47,11 @@ public class SagaStepLog {
 	private StepStatus stepStatus;
 
 	@JdbcTypeCode(SqlTypes.JSON)
-	@Column(name = "request_payload", columnDefinition = "jsonb")
+	@Column(name = "request_payload")
 	private Map<String, Object> requestPayload;
 
 	@JdbcTypeCode(SqlTypes.JSON)
-	@Column(name = "response_payload", columnDefinition = "jsonb")
+	@Column(name = "response_payload")
 	private Map<String, Object> responsePayload;
 
 	@Column(name = "error_message", columnDefinition = "TEXT")

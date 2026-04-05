@@ -16,7 +16,7 @@ public interface SagaStepLogRepository extends JpaRepository<SagaStepLog, Long> 
 			String sagaId, Integer stepOrder
 	);
 
-	@Query("""
+	@Query(nativeQuery = true, value = """
         SELECT s FROM saga_step_log s
         WHERE s.sagaId = :sagaId
         AND s.stepStatus = :status

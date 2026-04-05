@@ -1,6 +1,8 @@
 package idea.fuel_payment.gas_service.service;
 
 import idea.fuel_payment.gas_service.domain.entity.FuelPump;
+import idea.fuel_payment.gas_service.domain.enums.FuelType;
+import idea.fuel_payment.gas_service.domain.enums.PumpStatus;
 import idea.fuel_payment.gas_service.dto.fuel_pump.FuelPumpCreateRequest;
 import idea.fuel_payment.gas_service.dto.fuel_pump.FuelPumpResponse;
 import idea.fuel_payment.gas_service.dto.fuel_pump.FuelPumpUpdateRequest;
@@ -39,6 +41,28 @@ public class FuelPumpService {
         return fuelPumpRepository.findByStationId(stationId).stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    /**
+     * Find the first available pump at a station for a given fuel type.
+     * Returns the pump with the smallest pump number.
+     *
+     * @param stationId gas station ID
+     * @param fuelType  type of fuel
+     * @return available fuel pump
+     * @throws NoSuchElementException if no available pump found
+     */
+    @Transactional(readOnly = true)
+    public FuelPumpResponse findAvailablePump(final Long stationId, final FuelType fuelType) {
+        FuelPump pump = fuelPumpRepository
+                .findFirstByStationIdAndFuelTypeAndPumpStatusOrderByPumpNumberAsc(
+                        stationId, fuelType, PumpStatus.AVAILABLE)
+                .orElseThrow(() -> new NoSuchElementException(
+                        "No available pump at station " + stationId + " for fuel type " + fuelType));
+
+        log.info("Found available pump id={} number={} at station={} for fuelType={}",
+                pump.getId(), pump.getPumpNumber(), stationId, fuelType);
+        return mapToResponse(pump);
     }
 
     /**
@@ -90,6 +114,40 @@ public class FuelPumpService {
         return savedPumps.stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    /**
+     * Activate a pump (set to IN_USE).
+     *
+     * @param pumpId fuel pump ID
+     * @return updated pump info
+     * @throws NoSuchElementException if not found
+     */
+    @Transactional
+    public FuelPumpResponse activatePump(final Long pumpId) {
+        FuelPump pump = fuelPumpRepository.findById(pumpId)
+                .orElseThrow(() -> new NoSuchElementException("Fuel pump not found: " + pumpId));
+        pump.setPumpStatus(PumpStatus.IN_USE);
+        FuelPump saved = fuelPumpRepository.save(pump);
+        log.info("Activated pump id={} status=IN_USE", pumpId);
+        return mapToResponse(saved);
+    }
+
+    /**
+     * Deactivate a pump (set back to AVAILABLE).
+     *
+     * @param pumpId fuel pump ID
+     * @return updated pump info
+     * @throws NoSuchElementException if not found
+     */
+    @Transactional
+    public FuelPumpResponse deactivatePump(final Long pumpId) {
+        FuelPump pump = fuelPumpRepository.findById(pumpId)
+                .orElseThrow(() -> new NoSuchElementException("Fuel pump not found: " + pumpId));
+        pump.setPumpStatus(PumpStatus.AVAILABLE);
+        FuelPump saved = fuelPumpRepository.save(pump);
+        log.info("Deactivated pump id={} status=AVAILABLE", pumpId);
+        return mapToResponse(saved);
     }
 
     private FuelPumpResponse mapToResponse(final FuelPump pump) {

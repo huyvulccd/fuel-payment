@@ -1,24 +1,22 @@
 package idea.fuel_payment.orchestrator_service.config;
 
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.deser.std.StringDeserializer;
-import com.fasterxml.jackson.databind.ser.std.StringSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.core.ConsumerFactory;
-import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.core.DefaultKafkaProducerFactory;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.support.converter.StringJsonMessageConverter;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.util.backoff.FixedBackOff;
 
 import java.util.HashMap;
@@ -27,7 +25,10 @@ import java.util.Map;
 @Configuration
 @EnableKafka
 @Slf4j
+@RequiredArgsConstructor
 public class KafkaConfig {
+
+    private final ObjectMapper objectMapper;
 
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
@@ -39,14 +40,12 @@ public class KafkaConfig {
     private int retryMaxAttempts;
 
     @Value("${spring.kafka.producer.acks}")
-    private int ackStrategy;
+    private String ackStrategy;
 
     @Value("${spring.kafka.producer.properties.enable.idempotence}")
     private boolean enableIdempotence;
 
-    private final static String TRUSTED_PACKAGES = "spring.json.trusted.packages";
-
-    @Value(TRUSTED_PACKAGES)
+    @Value("${spring.kafka.consumer.properties.spring.json.trusted.packages:*}")
     private String trustedPackages;
 
     // ==========================================
@@ -61,7 +60,10 @@ public class KafkaConfig {
         props.put(ProducerConfig.ACKS_CONFIG, ackStrategy);
         props.put(ProducerConfig.RETRIES_CONFIG, retryMaxAttempts);
         props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, enableIdempotence);
-        return new DefaultKafkaProducerFactory<>(props);
+        
+        DefaultKafkaProducerFactory<String, Object> factory = new DefaultKafkaProducerFactory<>(props);
+        factory.setValueSerializer(new JsonSerializer<>(objectMapper));
+        return factory;
     }
 
     @Bean
@@ -78,10 +80,9 @@ public class KafkaConfig {
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class); // Use String for better conversion
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-        props.put(TRUSTED_PACKAGES, trustedPackages);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
@@ -94,16 +95,15 @@ public class KafkaConfig {
 
         factory.setConsumerFactory(consumerFactory());
         factory.setConcurrency(3);
+        factory.setRecordMessageConverter(new StringJsonMessageConverter(objectMapper));
         factory.getContainerProperties()
                 .setAckMode(ContainerProperties.AckMode.MANUAL);
 
-        // Error handler - retry 3 times, each 1s
+        // Error handler
         factory.setCommonErrorHandler(
                 new DefaultErrorHandler(
-                        (record, exception) -> log.error("Failed to process record after retries: " +
-                                        "topic={}, key={}, error={}",
-                                record.topic(), record.key(),
-                                exception.getMessage()),
+                        (record, exception) -> log.error("Failed to process record: topic={}, error={}",
+                                record.topic(), exception.getMessage()),
                         new FixedBackOff(1000L, 3L)
                 )
         );

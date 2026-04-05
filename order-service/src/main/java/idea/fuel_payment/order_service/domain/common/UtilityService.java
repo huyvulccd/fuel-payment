@@ -1,12 +1,12 @@
 package idea.fuel_payment.order_service.domain.common;
 
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -162,5 +162,22 @@ public abstract class UtilityService {
 		throw new IllegalArgumentException(
 				"Unsupported conversion from " + o.getClass() + " to " + clazz
 		);
+	}
+
+	protected LocalDateTime now() {
+		return LocalDateTime.now();
+	}
+
+	private static final ObjectMapper sharedMapper = new ObjectMapper()
+			.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule())
+			.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+	public static <T> String toJson(final T any, final String logExc) {
+		try {
+			return sharedMapper.writeValueAsString(any);
+		} catch (JsonProcessingException e) {
+			String message = "Convert " + any.getClass() + "to JSON failed \n" + logExc;
+			throw new RuntimeException(message, e);
+		}
 	}
 }

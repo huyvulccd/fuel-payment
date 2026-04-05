@@ -32,16 +32,16 @@ public class OrderCreatedConsumer {
 
 		log.info("Received OrderCreated: topic={}, key={}, " +
 						"offset={}, orderCode={}",
-				topic, key, offset, event.getOrderCode());
+				topic, key, offset, event.orderCode());
 
 		try {
 			sagaEngine.startSaga(event);
 			ack.acknowledge();
 			log.info("Successfully processed OrderCreated: {}",
-					event.getOrderCode());
+					event.orderCode());
 		} catch (Exception e) {
 			log.error("Failed to process OrderCreated: {}",
-					event.getOrderCode(), e);
+					event.orderCode(), e);
 			// if not acknowledge → Kafka will re-deliver
 			throw e;
 		}

@@ -4,6 +4,7 @@ import idea.fuel_payment.gas_service.domain.enums.FuelType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
 import java.math.BigDecimal;
 
@@ -20,6 +21,7 @@ import java.math.BigDecimal;
  * @author gas-service
  * @version 2026/04/03
  */
+@Builder
 public record PumpSessionRegisterRequest(
         @NotNull(message = "pumpId is required")
         Long pumpId,

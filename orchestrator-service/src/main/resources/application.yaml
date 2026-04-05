@@ -10,23 +10,16 @@ spring:
   # DATABASE
   # ==========================================
   datasource:
-    url: jdbc:postgresql://localhost:5432/orchestrator_db
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-      idle-timeout: 300000
-      connection-timeout: 20000
-
+    url: jdbc:mysql://localhost:3306/brain_service_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: validate
-    show-sql: false
+      ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
   flyway:
@@ -61,6 +54,7 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
+        spring.json.type.mapping: "idea.fuel_payment.order_service.dto.kafka.OrderCreatedEvent:idea.fuel_payment.orchestrator_service.kafka.dto.OrderCreatedEvent"
         max.poll.records: 10
         max.poll.interval.ms: 300000
     producer:
