@@ -76,6 +76,12 @@ public class PumpSession {
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
+    @Column(name = "saga_id", length = 50)
+    private String sagaId;
+
+    @Column(name = "step_order")
+    private Integer stepOrder;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

@@ -37,6 +37,4 @@ public interface FuelPumpRepository extends JpaRepository<FuelPump, Long> {
      */
     Optional<FuelPump> findFirstByStationIdAndFuelTypeAndPumpStatusOrderByPumpNumberAsc(
             Long stationId, FuelType fuelType, PumpStatus pumpStatus);
-
-	FuelPump findByPumpId(Long pumpId);
 }

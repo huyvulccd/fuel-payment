@@ -1,4 +1,4 @@
-package idea.fuel_payment.order_service.domain.enity;
+package idea.fuel_payment.order_service.outbox;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -36,12 +36,13 @@ public class OutboxEvent {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
+    @Builder.Default
     private OutboxStatus status = OutboxStatus.PENDING;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
+    
     public enum OutboxStatus {
         PENDING, PUBLISHED, FAILED
     }

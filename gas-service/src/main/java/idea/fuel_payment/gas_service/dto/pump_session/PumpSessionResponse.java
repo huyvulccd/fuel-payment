@@ -33,6 +33,8 @@ public record PumpSessionResponse(
         BigDecimal unitPrice,
         BigDecimal totalAmount,
         SessionStatus sessionStatus,
+        String sagaId,
+        Integer stepOrder,
         LocalDateTime startedAt,
         LocalDateTime completedAt
 ) {

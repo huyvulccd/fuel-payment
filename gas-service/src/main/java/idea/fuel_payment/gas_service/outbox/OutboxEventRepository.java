@@ -1,6 +1,5 @@
-package idea.fuel_payment.order_service.repository;
+package idea.fuel_payment.gas_service.outbox;
 
-import idea.fuel_payment.order_service.domain.enity.OutboxEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

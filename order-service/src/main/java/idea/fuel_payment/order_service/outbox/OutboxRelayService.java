@@ -1,15 +1,9 @@
-package idea.fuel_payment.order_service.service;
+package idea.fuel_payment.order_service.outbox;
 
-import idea.fuel_payment.order_service.domain.enity.OutboxEvent;
-import idea.fuel_payment.order_service.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Slf4j
 @Service

@@ -44,6 +44,9 @@ public record PumpSessionRegisterRequest(
 
         @NotNull(message = "totalAmount is required")
         @DecimalMin(value = "0.01", message = "totalAmount must be positive")
-        BigDecimal totalAmount
+        BigDecimal totalAmount,
+
+        String sagaId,
+        Integer stepOrder
 ) {
 }

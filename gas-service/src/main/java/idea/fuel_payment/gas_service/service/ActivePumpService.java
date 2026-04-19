@@ -17,17 +17,17 @@ public class ActivePumpService {
 	private final FuelInventoryRepository fuelInventoryRepository;
 	private final FuelPumpRepository fuelPumpRepository;
 
-	public Map<String, Object> activePump(final Long pumpId) {
+//	public Map<String, Object> activePump(final Long pumpId) {
+//
+//		boolean isEnoughFuel = isEnough(pumpId);
+//	}
 
-		boolean isEnoughFuel = isEnough(pumpId);
-	}
-
-	private boolean isEnough(Long pumpId) {
-		FuelPump pump = fuelPumpRepository.findByPumpId(pumpId);
-		Long stationId = pump.getStationId();
-
-		Optional<FuelInventory> inventoryFuelType = fuelInventoryRepository.
-				findByStationIdAndFuelType(stationId, pump.getFuelType());
-
-	}
+//	private boolean isEnough(Long pumpId) {
+//		FuelPump pump = fuelPumpRepository.findByPumpId(pumpId);
+//		Long stationId = pump.getStationId();
+//
+//		Optional<FuelInventory> inventoryFuelType = fuelInventoryRepository.
+//				findByStationIdAndFuelType(stationId, pump.getFuelType());
+//
+//	}
 }
