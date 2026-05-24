@@ -9,6 +9,7 @@ import idea.fuel_payment.gas_service.service.FuelPumpService;
 import idea.fuel_payment.gas_service.service.PumpSessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,12 @@ public class GasSagaCommandConsumer {
 	private final OutboxService outboxService;
 	private final FuelPumpService fuelPumpService;
 	private final PumpSessionService pumpSessionService;
+
+	@Value("${kafka.topics.saga-step-response}")
+	private String topicResponse;
+
+	@Value("${kafka.topics.pump-completed}")
+	private String topicResponsePumpComplete;
 
 	@KafkaListener(
 			topics = "${kafka.topics.saga-step-command}",
@@ -89,7 +96,7 @@ public class GasSagaCommandConsumer {
 			outboxService.saveEvent(
 					"SAGA_RESPONSE",
 					command.getSagaId(),
-					"ACTIVATE_PUMP_SUCCESS",
+					topicResponse,
 					response
 			);
 
@@ -129,22 +136,37 @@ public class GasSagaCommandConsumer {
 			Long pumpId = Long.valueOf(payload.get("pumpId").toString());
 			
 			// Mock registration of session with Saga context
-			PumpSessionRegisterRequest sessionRequest = PumpSessionRegisterRequest.builder()
-					.pumpId(pumpId)
-					.orderCode(command.getOrderCode())
-					.licensePlate(payload.containsKey("licensePlate") ? payload.get("licensePlate").toString() : "UNKNOWN")
-					.fuelType(idea.fuel_payment.gas_service.domain.enums.FuelType.valueOf(payload.get("fuelType").toString()))
-					.quantityLiters(BigDecimal.ZERO) 
-					.unitPrice(new BigDecimal(payload.get("unitPrice").toString()))
-					.totalAmount(BigDecimal.ZERO)
+//			PumpSessionRegisterRequest sessionRequest = PumpSessionRegisterRequest.builder()
+//					.pumpId(pumpId)
+//					.orderCode(command.getOrderCode())
+//					.licensePlate(payload.containsKey("licensePlate") ? payload.get("licensePlate").toString() : "UNKNOWN")
+//					.fuelType(idea.fuel_payment.gas_service.domain.enums.FuelType.valueOf(payload.get("fuelType").toString()))
+//					.quantityLiters(BigDecimal.ZERO)
+//					.unitPrice(new BigDecimal(payload.get("unitPrice").toString()))
+//					.totalAmount(BigDecimal.ZERO)
+//					.sagaId(command.getSagaId())
+//					.stepOrder(command.getStepOrder())
+//					.build();
+//
+//			pumpSessionService.registerSession(sessionRequest);
+//
+			log.info("Saga thread released. Waiting for external completion API for order: {}", command.getOrderCode());
+			SagaStepResponse response = SagaStepResponse.builder()
 					.sagaId(command.getSagaId())
+					.orderCode(command.getOrderCode())
 					.stepOrder(command.getStepOrder())
+					.status(StepStatus.SUCCESS)
+					.payload(null)
+					.timestamp(System.currentTimeMillis())
 					.build();
 
-			pumpSessionService.registerSession(sessionRequest);
-			
-			log.info("Saga thread released. Waiting for external completion API for order: {}", command.getOrderCode());
-
+			// SAVE TO OUTBOX
+			outboxService.saveEvent(
+					"SAGA_RESPONSE",
+					command.getSagaId(),
+					topicResponse,
+					response
+			);
 		} catch (Exception e) {
 			log.error("Error processing wait pump complete step", e);
 			SagaStepResponse response = SagaStepResponse.builder()
@@ -190,7 +212,7 @@ public class GasSagaCommandConsumer {
 			outboxService.saveEvent(
 					"SAGA_RESPONSE",
 					command.getSagaId(),
-					"UPDATE_INVENTORY_SUCCESS",
+					topicResponse,
 					response
 			);
 

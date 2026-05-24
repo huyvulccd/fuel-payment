@@ -7,6 +7,7 @@ import idea.fuel_payment.order_service.kafka.dto.StepAction;
 import idea.fuel_payment.order_service.kafka.dto.StepStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class CompleteOrderConsumer {
 
 	private final OutboxService outboxService;
+
+	@Value("${kafka.topics.saga-step-response}")
+	private String sagaStepResponseTopic;
 
 	@KafkaListener(
 			topics = "${kafka.topics.saga-step-command}",
@@ -52,7 +56,7 @@ public class CompleteOrderConsumer {
 			outboxService.saveEvent(
 					"SAGA_RESPONSE",
 					command.getSagaId(),
-					"COMPLETE_ORDER_SUCCESS",
+					sagaStepResponseTopic,
 					response
 			);
 			
@@ -70,7 +74,7 @@ public class CompleteOrderConsumer {
 			outboxService.saveEvent(
 					"SAGA_RESPONSE",
 					command.getSagaId(),
-					"COMPLETE_ORDER_FAILED",
+					sagaStepResponseTopic,
 					response
 			);
 		}

@@ -27,9 +27,8 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
-      group-id: orchestrator-group
+      group-id: gas-service-group
       auto-offset-reset: earliest
-      enable-auto-commit: false
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
@@ -45,12 +44,13 @@ spring:
       properties:
         enable.idempotence: true
         max.in.flight.requests.per.connection: 5
-    listener:
-      ack-mode: manual
-      concurrency: 3
+#    listener:
+#      ack-mode: manual
+#      concurrency: 3
 kafka:
   topics:
     saga-step-command: fuel.saga.step.command
+    pump-completed: fuel.pump.completed
     saga-step-response: fuel.saga.step.response
 
 logging:

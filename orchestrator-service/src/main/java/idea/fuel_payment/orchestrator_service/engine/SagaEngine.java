@@ -188,9 +188,9 @@ public class SagaEngine {
         if (payload == null) payload = new HashMap<>();
 
         payload.put("quantityLiters",
-                event.getQuantityLiters().toString());
+                "event.getQuantityLiters().toString()");
         payload.put("totalAmount",
-                event.getTotalAmount().toString());
+                "event.getTotalAmount().toString()");
         payload.put("sessionCode", event.getSessionCode());
         saga.setPayload(payload);
 
@@ -199,9 +199,9 @@ public class SagaEngine {
                 StepAction.WAIT_PUMP_COMPLETE,
                 Map.of(
                         "quantityLiters",
-                        event.getQuantityLiters().toString(),
+                        "event.getQuantityLiters().toString()",
                         "totalAmount",
-                        event.getTotalAmount().toString()
+                        "event.getTotalAmount().toString()"
                 ));
 
         sagaInstanceRepository.save(saga);
@@ -236,20 +236,23 @@ public class SagaEngine {
         } else {
             sagaInstanceRepository.save(saga);
 
-            SagaStepDefinition nextStepDef =
-                    definition.getStep(nextStep).orElseThrow();
+//            SagaStepDefinition nextStepDef =
+//                    definition.getStep(nextStep).orElseThrow();
+//
+//            if (nextStepDef.asyncWait()) {
+//                // Step need to wait external event
+//                // (WAIT_PUMP_COMPLETE)
+//                log.info("Step {} is async wait, waiting for " +
+//                        "external event...", nextStep);
+//                logStepInProgress(saga, nextStep,
+//                        nextStepDef.stepName(),
+//                        nextStepDef.forwardAction());
+//                nextStepDef.targetTopic();
+//            } else {
+//                executeNextStep(saga, nextStep);
+//            }
 
-            if (nextStepDef.asyncWait()) {
-                // Step need to wait external event
-                // (WAIT_PUMP_COMPLETE)
-                log.info("Step {} is async wait, waiting for " +
-                        "external event...", nextStep);
-                logStepInProgress(saga, nextStep,
-                        nextStepDef.stepName(),
-                        nextStepDef.forwardAction());
-            } else {
-                executeNextStep(saga, nextStep);
-            }
+            executeNextStep(saga, nextStep);
         }
     }
 

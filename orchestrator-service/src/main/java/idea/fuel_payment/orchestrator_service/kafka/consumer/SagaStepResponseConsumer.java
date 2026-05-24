@@ -1,6 +1,9 @@
 package idea.fuel_payment.orchestrator_service.kafka.consumer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import idea.fuel_payment.orchestrator_service.engine.SagaEngine;
+import idea.fuel_payment.orchestrator_service.kafka.dto.OrderCreatedEvent;
 import idea.fuel_payment.orchestrator_service.kafka.dto.SagaStepResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Component;
 public class SagaStepResponseConsumer {
 
 	private final SagaEngine sagaEngine;
+	private final ObjectMapper objectMapper;
 
 	@KafkaListener(
 			topics = "${kafka.topics.saga-step-response:" +
@@ -25,10 +29,12 @@ public class SagaStepResponseConsumer {
 			containerFactory = "kafkaListenerContainerFactory"
 	)
 	public void consume(
-			@Payload SagaStepResponse response,
+			@Payload String payload,
 			@Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
 			@Header(KafkaHeaders.OFFSET) long offset,
-			Acknowledgment ack) {
+			Acknowledgment ack) throws JsonProcessingException {
+
+        SagaStepResponse response =	objectMapper.readValue(payload, SagaStepResponse.class);
 
 		log.info("Received StepResponse: saga={}, step={}, " +
 						"status={}, offset={}",

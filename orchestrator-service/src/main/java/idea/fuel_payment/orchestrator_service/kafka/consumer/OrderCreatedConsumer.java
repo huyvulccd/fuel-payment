@@ -1,5 +1,7 @@
 package idea.fuel_payment.orchestrator_service.kafka.consumer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import idea.fuel_payment.orchestrator_service.engine.SagaEngine;
 import idea.fuel_payment.orchestrator_service.kafka.dto.OrderCreatedEvent;
 import lombok.RequiredArgsConstructor;
@@ -17,18 +19,22 @@ import org.springframework.stereotype.Component;
 public class OrderCreatedConsumer {
 
 	private final SagaEngine sagaEngine;
+	private final ObjectMapper objectMapper;
 
 	@KafkaListener(
-			topics = "${kafka.topics.order-created:fuel.order.created}",
+			topics = "${kafka.topics.order-created}",
 			groupId = "${spring.kafka.consumer.group-id}",
 			containerFactory = "kafkaListenerContainerFactory"
 	)
 	public void consume(
-			@Payload OrderCreatedEvent event,
+			@Payload String payloadEvent,
 			@Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
 			@Header(KafkaHeaders.RECEIVED_KEY) String key,
 			@Header(KafkaHeaders.OFFSET) long offset,
-			Acknowledgment ack) {
+			Acknowledgment ack) throws JsonProcessingException {
+
+		OrderCreatedEvent event =
+				objectMapper.readValue(payloadEvent, OrderCreatedEvent.class);
 
 		log.info("Received OrderCreated: topic={}, key={}, " +
 						"offset={}, orderCode={}",

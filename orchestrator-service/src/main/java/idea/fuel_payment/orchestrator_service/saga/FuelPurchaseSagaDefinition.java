@@ -101,18 +101,18 @@ public class FuelPurchaseSagaDefinition implements SagaDefinition {
 						.timeoutSeconds(30)
 						.compensable(true)
 						.asyncWait(false)
-						.build(),
-
-				SagaStepDefinition.builder()
-						.stepOrder(8)
-						.stepName(StepName.SEND_NOTIFICATION)
-						.forwardAction(StepAction.SEND_NOTIFICATION)
-						.compensationAction(null)
-						.targetTopic(COMMAND_STEP)
-						.timeoutSeconds(30)
-						.compensable(false)
-						.asyncWait(false)
 						.build()
+
+//				SagaStepDefinition.builder()
+//						.stepOrder(8)
+//						.stepName(StepName.SEND_NOTIFICATION)
+//						.forwardAction(StepAction.SEND_NOTIFICATION)
+//						.compensationAction(null)
+//						.targetTopic(COMMAND_STEP)
+//						.timeoutSeconds(30)
+//						.compensable(false)
+//						.asyncWait(false)
+//						.build()
 		);
 	}
 

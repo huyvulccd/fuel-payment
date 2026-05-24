@@ -3,6 +3,7 @@ package idea.fuel_payment.payment_service.outbox;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +21,7 @@ public class OutboxRelayService {
      * Polling job to automatically relay PENDING outbox events to Kafka.
      * DISABLED by default as per request.
      */
-    // @org.springframework.scheduling.annotation.Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = 5000)
     @Transactional
     public void relayOutboxEvents() {
         List<OutboxEvent> pendingEvents = outboxEventRepository.findByStatusOrderByCreatedAtAsc(OutboxEvent.OutboxStatus.PENDING);
@@ -28,7 +29,7 @@ public class OutboxRelayService {
         for (OutboxEvent event : pendingEvents) {
             try {
                 // Topic format example: {aggregateType}_events
-                String topic = event.getAggregateType().toLowerCase() + "_events";
+                String topic = event.getEventType();
                 
                 // Publish to Kafka. We use aggregateId as the key for partition affinity.
                 kafkaTemplate.send(topic, event.getAggregateId(), event.getPayload());

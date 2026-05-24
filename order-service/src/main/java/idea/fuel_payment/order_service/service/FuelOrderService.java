@@ -44,7 +44,9 @@ public class FuelOrderService extends UtilityService {
     private final RedisTool redisTool;
     private final RestTemplate restTemplate;
 
-    private final OrderEventProducer orderEventProducer;
+
+    @Value("${kafka.topics.order-created}")
+    private String topicCreateOrder;
 
     @Value("${gas-service.base-url:http://localhost:8081}")
     private String gasServiceBaseUrl;
@@ -103,26 +105,13 @@ public class FuelOrderService extends UtilityService {
         OutboxEvent event = OutboxEvent.builder()
                 .aggregateType("FuelOrder")
                 .aggregateId(savedOrder.getId() != null ? savedOrder.getId().toString() : orderCode)
-                .eventType("OrderCreated")
+                .eventType(topicCreateOrder)
                 .payload(payload)
                 .status(OutboxEvent.OutboxStatus.PENDING)
                 .build();
         outboxEventRepository.save(event);
 
         log.info("OutboxEvent created for order: {}", orderCode);
-
-
-        OrderCreatedEvent orderCreatedEvent = OrderCreatedEvent.builder()
-                .orderCode(orderCode)
-                .licensePlate(request.licensePlate())
-                .ownerId(ownerId)
-                .stationId(request.stationId())
-                .pumpId(pumpId)
-                .fuelType(fuelType)
-                .createdAt(now())
-                .build();
-
-        orderEventProducer.sendOrderCreatedEvent(orderCreatedEvent);
         // 6. Return response
         return new JoinLineResponse(
                 orderCode,
@@ -130,7 +119,7 @@ public class FuelOrderService extends UtilityService {
                 request.stationId(),
                 pumpId,
                 fuelType,
-                unitPrice,
+                unitPrice,.
                 List.of("Successfully joined the fueling line")
         );
     }

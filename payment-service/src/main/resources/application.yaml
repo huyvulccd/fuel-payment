@@ -28,7 +28,7 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
- 
+
 kafka:
   topics:
     saga-step-command: fuel.saga.step.command
@@ -36,3 +36,5 @@ kafka:
 
 server:
   port: 8082
+
+kind: Application

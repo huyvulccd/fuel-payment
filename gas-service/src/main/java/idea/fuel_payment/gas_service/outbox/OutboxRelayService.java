@@ -20,7 +20,7 @@ public class OutboxRelayService {
      * Polling job to automatically relay PENDING outbox events to Kafka.
      * DISABLED by default as per request.
      */
-    // @org.springframework.scheduling.annotation.Scheduled(fixedDelay = 5000)
+     @org.springframework.scheduling.annotation.Scheduled(fixedDelay = 5000)
     @Transactional
     public void relayOutboxEvents() {
         List<OutboxEvent> pendingEvents = outboxEventRepository.findByStatusOrderByCreatedAtAsc(OutboxEvent.OutboxStatus.PENDING);
@@ -28,7 +28,7 @@ public class OutboxRelayService {
         for (OutboxEvent event : pendingEvents) {
             try {
                 // Topic format example: {aggregateType}_events
-                String topic = event.getAggregateType().toLowerCase() + "_events";
+                String topic = event.getEventType();
                 
                 // Publish to Kafka. We use aggregateId as the key for partition affinity.
                 kafkaTemplate.send(topic, event.getAggregateId(), event.getPayload());

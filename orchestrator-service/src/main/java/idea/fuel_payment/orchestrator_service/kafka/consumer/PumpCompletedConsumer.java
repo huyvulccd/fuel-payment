@@ -1,6 +1,9 @@
 package idea.fuel_payment.orchestrator_service.kafka.consumer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import idea.fuel_payment.orchestrator_service.engine.SagaEngine;
+import idea.fuel_payment.orchestrator_service.kafka.dto.OrderCreatedEvent;
 import idea.fuel_payment.orchestrator_service.kafka.dto.PumpCompletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Component;
 public class PumpCompletedConsumer {
 
 	private final SagaEngine sagaEngine;
+	private final ObjectMapper objectMapper;
 
 	@KafkaListener(
 			topics = "${kafka.topics.pump-completed:" +
@@ -25,10 +29,13 @@ public class PumpCompletedConsumer {
 			containerFactory = "kafkaListenerContainerFactory"
 	)
 	public void consume(
-			@Payload PumpCompletedEvent event,
+			@Payload String payloadEvent,
 			@Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
 			@Header(KafkaHeaders.OFFSET) long offset,
-			Acknowledgment ack) {
+			Acknowledgment ack) throws JsonProcessingException {
+
+		PumpCompletedEvent event =
+				objectMapper.readValue(payloadEvent, PumpCompletedEvent.class);
 
 		log.info("Received PumpCompleted: order={}, " +
 						"quantity={}, amount={}",

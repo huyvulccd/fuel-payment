@@ -28,10 +28,12 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      
+
 kafka:
   topics:
     order-created: fuel.order.created
     saga-step-command: fuel.saga.step.command
     saga-step-response: fuel.saga.step.response
+
+kind: Application
 
